@@ -1,0 +1,795 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="1000" height="1000"
+	xmlns:um="com.universalmind.controls.*" xmlns:ns1="*"  xmlns:mq = "com.mapquest.tilemap.*"
+	 creationComplete="initApp();">
+	<mx:states>
+		<mx:State name="TBA">
+			<mx:RemoveChild target="{radioAll}"/>
+			<mx:RemoveChild target="{radioActive}"/>
+			<mx:RemoveChild target="{radiobutton1}"/>
+			<mx:RemoveChild target="{text1}"/>
+			<mx:RemoveChild target="{btnSave}"/>
+			<mx:RemoveChild target="{textarea1}"/>
+			<mx:RemoveChild target="{text2}"/>
+			<mx:RemoveChild target="{text3}"/>
+			<mx:RemoveChild target="{venueName}"/>
+			<mx:RemoveChild target="{venue_address}"/>
+			<mx:RemoveChild target="{venue_city}"/>
+			<mx:RemoveChild target="{text4}"/>
+			<mx:RemoveChild target="{text5}"/>
+			<mx:RemoveChild target="{cboNeighborhood}"/>
+			<mx:RemoveChild target="{text6}"/> 
+			<mx:RemoveChild target="{venue_web}"/>
+			<mx:RemoveChild target="{text7}"/>
+			<mx:RemoveChild target="{venue_zip}"/>
+			<mx:RemoveChild target="{mapContainer}"/>
+			<mx:RemoveChild target="{text8}"/>
+			<mx:RemoveChild target="{panel1}"/>
+			<mx:RemoveChild target="{text9}"/>
+			<mx:RemoveChild target="{text10}"/>
+			<mx:RemoveChild target="{smartComboBox}"/>
+			<mx:RemoveChild target="{dg1}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="138" y="106" width="694" height="275" id="dbTBA" 
+				 click="this.newID.text = this.dbTBA.selectedItem.id;"	dataProvider="{qUnmatched}" creationComplete="this.sfartsService.getUnmatchedTBA();">
+					<mx:columns>
+						<mx:DataGridColumn headerText="name" dataField="name" width="100"/>
+						<mx:DataGridColumn headerText="id" dataField="id" width="10"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:RemoveChild target="{button1}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="767" y="30" label="Neighborhoods" click="currentState = ''" id="button2"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="138" y="84" text="Not Matched from TBA DB&#xa;"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="138" y="738" width="341" id="orgName" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="519" y="738" width="60" id="newID"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{newID}" position="before">
+				<mx:Text x="519" y="712" text="TBA ID:" id="text11"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="138" y="785" width="79" id="sfArtsID"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{text11}" position="before">
+				<mx:Text x="138" y="765" text="SFarts ID"  id="text12"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="225" y="785" label="Save It!" click="
+				this.sfartsService.addtbaID(int(this.newID.text),int(this.sfArtsID.text));
+				
+				"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="57" y="217" text="TBA Data"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="137" y="861" width="190" id="subString"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{text12}" position="before">
+				<mx:Text x="138" y="835" text="Search for Substring in SFarts DB"  width="203"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="137" y="900" label="Search" click="this.sfartsService.searchBySubsString(this.subString.text);"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="370" y="780" width="389" id="dgSubStringReturn" dataProvider="{qSubString}" click="assignTextField();">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Name" dataField="Org_Name"/>
+						<mx:DataGridColumn headerText="SF ID" dataField="Org_Num"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="626" y="738" label="Sync the Tables"  visible="false" width="117" click="
+				this.sfartsService.syncSFARTS_TBA_Table();
+				this.sfartsService.getUnmatchedTBA();
+				this.sfartsService.getUnmatchedSFarts();
+				"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="138" y="417" width="694" height="270" dataProvider="{qFuzzyLookupResults}" creationComplete="this.sfartsService.seeCurrentOrgFuzzyLookup();">
+					<mx:columns>
+						<mx:DataGridColumn headerText="comp_name" dataField="comp_name"/>
+						<mx:DataGridColumn headerText="Org_Name" dataField="Org_Name"/>
+						<mx:DataGridColumn headerText="Similarity" dataField="_Similarity"/>
+						<mx:DataGridColumn headerText="Confidence" dataField="_Confidence"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="206.5" y="391" text="This is the OLE DB table in SFarts. Make sure that the SSIS procedure is run to update"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="Free">
+			<mx:RemoveChild target="{text10}"/>
+			<mx:RemoveChild target="{smartComboBox}"/>
+			<mx:RemoveChild target="{dg1}"/>
+			<mx:RemoveChild target="{venueName}"/>
+			<mx:RemoveChild target="{venue_address}"/>
+			<mx:RemoveChild target="{venue_city}"/>
+			<mx:RemoveChild target="{venue_zip}"/>
+			<mx:RemoveChild target="{cboNeighborhood}"/>
+			<mx:RemoveChild target="{venue_web}"/>
+			<mx:RemoveChild target="{text7}"/>
+			<mx:RemoveChild target="{text2}"/>
+			<mx:RemoveChild target="{text3}"/>
+			<mx:RemoveChild target="{text4}"/>
+			<mx:RemoveChild target="{text5}"/>
+			<mx:RemoveChild target="{text6}"/>
+			<mx:RemoveChild target="{mapContainer}"/>
+			<mx:RemoveChild target="{btnSave}"/>
+			<mx:RemoveChild target="{radiobutton1}"/>
+			<mx:RemoveChild target="{radioActive}"/>
+			<mx:RemoveChild target="{radioAll}"/>
+			<mx:RemoveChild target="{text1}"/>
+			<mx:RemoveChild target="{textarea1}"/>
+			<mx:RemoveChild target="{text8}"/>
+			<mx:RemoveChild target="{text9}"/>
+			<mx:RemoveChild target="{panel1}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="53" y="80" width="788" height="235" dataProvider="{qFreeEventTargets}" creationComplete="this.sfartsService.getFreeEventTargets();" click="selectTargetEvent();" id="dgTargetEvents">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Sim" dataField="_Similarity" width="35"/>
+						<mx:DataGridColumn headerText="Conf" dataField="_Confidence" width="35"/>
+						<mx:DataGridColumn headerText="Org_Name" dataField="Org_Name"/>
+						<mx:DataGridColumn headerText="comp_name" dataField="comp_name"/>
+						<mx:DataGridColumn headerText="show_name" dataField="show_name"/>
+						<mx:DataGridColumn headerText="Event_Name" dataField="Event_Name"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="53" y="389" width="788" height="401" dataProvider="{qeventsForOrg}" id="dgOrgevents">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Event Name" dataField="Event_Name"/>
+						<mx:DataGridColumn headerText="Link" dataField="ticketLink"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="395" y="839" label="Punch It In ...." click="insertTicketText();" id="button4"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{radiobutton2}"/>
+			<mx:RemoveChild target="{text0}"/>
+			<mx:RemoveChild target="{button7}"/>
+			<mx:RemoveChild target="{label3}"/>
+		</mx:State>
+		<mx:State name="TIX" basedOn="Free">
+			<mx:RemoveChild target="{dgTargetEvents}"/>
+			<mx:RemoveChild target="{dgOrgevents}"/>
+			<mx:RemoveChild target="{button4}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="23" y="38" width="747" id="dgTIXFuzzyTargets" dataProvider="{qTIXFuzzyLookUpBySimilarity}" creationComplete="this.sfartsService.getTIXFuzzyLookupBySimilarity();"
+					 height="379" click="fuzzyClick();">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Show Name" dataField="showname"/>
+						<mx:DataGridColumn headerText="Event_Name" dataField="Event_Name"/>
+						<mx:DataGridColumn headerText="theatre" dataField="theatre"/>
+						<mx:DataGridColumn headerText="_Similarity" dataField="_Similarity" width="50"/>
+						<mx:DataGridColumn headerText="_Confidence" dataField="_Confidence" width="50"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="132.5" y="10" text="Unmatched TIX events (will not reset until SSIS procedure is rerun. Exact matches are added by code.)" width="635" id="label1"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="23" y="473" width="747" height="324" id="dgEventCandidates" dataProvider="{qTIXEventCandidatesForOrg}">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Org_Name" dataField="Org_Name"/>
+						<mx:DataGridColumn headerText="Event_Name" dataField="Event_Name"/>
+						<mx:DataGridColumn headerText="Venue_Name" dataField="Venue_Name"/>
+						<mx:DataGridColumn headerText="ticketLink" dataField="ticketLink"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="98" y="447" text="Events for that comp_id/Org_ID" id="label2"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="349" y="831" label="Punch it in..." click="punchInTheData();" id="button5"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="705" y="841" label="TIX Status" click="this.currentState = 'tixStatus'" id="button6"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="328" y="872" label="Update Half Price" width="139" click="this.sfartsService.updateTIXHalfPrice();"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="580" y="438" text="{oAbbrev.ABBREV}" width="190" id="txtABBREV"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="430" y="438" text="TBA ABBREV For Selection:"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="tixStatus" basedOn="TIX">
+			<mx:RemoveChild target="{label1}"/>
+			<mx:RemoveChild target="{dgTIXFuzzyTargets}"/>
+			<mx:RemoveChild target="{dgEventCandidates}"/>
+			<mx:RemoveChild target="{label2}"/>
+			<mx:RemoveChild target="{button5}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="120.5" y="131" width="659" height="529" id="dgTixStatus" dataProvider="{qTIXStatus}" creationComplete="this.sfartsService.getTixStatus();">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Event_Name" dataField="Event_Name"/>
+						<mx:DataGridColumn headerText="Date_String" dataField="Date_String"/>
+						<mx:DataGridColumn headerText="TIXLinkChangeDate" dataField="TIXLinkChangeDate"/>
+						<mx:DataGridColumn headerText="tixOffSale" dataField="tixOffSale"/>
+						<mx:DataGridColumn headerText="tixOnSale" dataField="tixOnSale"/>
+						<mx:DataGridColumn headerText="Half Price" dataField="TIXHalfPrice"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:RemoveChild target="{button6}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="417" y="707" label="Refresh View" click="this.sfartsService.getTixStatus();"/>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+
+<mx:Script>
+	<![CDATA[
+		import com.yahoo.maps.api.core.location.LatLon;
+		import com.yahoo.maps.api.markers.Marker;
+		import com.yahoo.maps.api.markers.SimpleMarker;
+			import mx.rpc.events.ResultEvent;
+       		import mx.collections.ArrayCollection;	
+       		import flash.events.*;
+       		//import flash.events.TransformGestureEvent;
+
+            import mx.events.*;
+            import mx.controls.Alert;
+            import mx.managers.FocusManager;
+            
+            import mx.events.ResizeEvent; 
+            // import maps classes.
+            import com.yahoo.maps.api.YahooMap; 
+            import com.yahoo.maps.api.YahooMapEvent; 
+            import com.yahoo.maps.api.core.location.Address; 
+            import com.yahoo.maps.webservices.geocoder.GeocoderResult; 
+            import com.yahoo.maps.webservices.geocoder.events.GeocoderEvent; 
+            
+            
+            
+            
+            //mapquest classes
+            /*
+            import com.mapquest.tilemap.pois.*;
+            import com.mapquest.tilemap.*;
+            import com.mapquest.tilemap.controls.shadymeadow.*;
+           
+            import com.mapquest.tilemap.controls.inputdevice.*;
+           
+            import com.mapquest.*;
+            import com.mapquest.services.geocode.*;
+			
+			
+            private var geocoder:Geocoder;
+            
+            private var location:GeocoderLocation;
+    	*/
+    		// end mapquest classes
+    		
+    		private var street:String  ;
+   		private var state:String;
+   		private var city:String ;
+   		[Bindable]
+   		private var requestString:String
+    	private var addressString:String;	
+    		
+    		
+    		private var _yahooMap:YahooMap; 
+            private var _address:Address; 
+    		
+    		 [Bindable]
+    		 public var numberOfRecords:uint;
+    		       
+		
+			[Bindable]
+			public var qbaseEventArray:ArrayCollection;
+			
+			[Bindable]
+			public var qfilteredEventArray:ArrayCollection;
+			
+			[Bindable]
+			public var qOrgNames:ArrayCollection;
+			
+			[Bindable]
+			public var oVenueData:Object;
+			
+			public var filterString:String;
+			
+			[Bindable]
+			public var qUnmatched:ArrayCollection;
+			
+			[Bindable]
+			public var qUnmatchedSF:ArrayCollection;
+			
+			[Bindable]
+			public var qSubString:ArrayCollection;
+			
+			[Bindable]
+			public var qFreeEventTargets:ArrayCollection;
+			
+			[Bindable]
+			public var qeventsForOrg:ArrayCollection;
+			
+			[Bindable]
+			public var qFuzzyLookupResults:ArrayCollection;
+			
+			[Bindable]
+			public var qTIXFuzzyLookUpBySimilarity:ArrayCollection;
+			
+			[Bindable]
+			public var qTIXEventCandidatesForOrg:ArrayCollection;
+			
+			[Bindable]
+			public var qTIXStatus:ArrayCollection;
+			
+			public var latLon:LatLon;
+			
+			public var strlatLon:String;
+			
+			public var lat:String;
+			
+			public var lon:String;
+			
+			public var zip:int;
+			
+			[Bindable]
+			public var oAbbrev:Object;
+			
+			[Bindable]
+			public var acNoZipVenues:ArrayCollection;
+			
+			private var boolRepopping:Boolean = false;
+			
+			public function handleGetNoZipVenues(event:ResultEvent):void{
+				this.acNoZipVenues = event.result as ArrayCollection;
+				this.qbaseEventArray = this.acNoZipVenues;
+					
+			}
+			
+			private function addZipCodes():void{
+				for(var count:int = 0; count < acNoZipVenues.length; count++){
+						var venue:Object = (this.acNoZipVenues.getItemAt(count));
+						if (venue.Venue_address != "" && venue.Venue_address != null){
+						if (venue.Venue_Zip == 0 || venue.Venue_Zip == "" || venue.Venue_Zip == null){
+							trace(venue.Venue_address);
+							trace(venue.Venue_Zip);
+							street = venue.Venue_address;
+							city = venue.Venue_City
+							state = 'CA';
+							addressString = "http://where.yahooapis.com/geocode?location="+street+"%20"+city+","+state+"&appid=fvag1NjV34EVGFEkBnQobhzDJEqucKQgmdaroRuSfoHwZE0ht5mypu3EbE8raKe2_g--";
+							requestString = this.addressString;
+   							userRequest.send();
+   							//trace(userRequest.lastResult.ResultSet.Result);
+   							
+							}
+						}
+					}
+					
+			}
+			
+			private function addZipCode():void{
+							street = this.venue_address.text;
+							city = this.venue_city.text;
+							state = 'CA';
+							addressString = "http://where.yahooapis.com/geocode?location="+street+"%20"+city+","+state+"&appid=fvag1NjV34EVGFEkBnQobhzDJEqucKQgmdaroRuSfoHwZE0ht5mypu3EbE8raKe2_g--";
+							requestString = this.addressString;
+   							userRequest.send();
+   							return;
+			}
+			
+			private function addZipCodeWrapper():void{
+				addZipCode();
+				//this.venue_zip.text = userRequest.lastResult.ResultSet.Result;
+			}
+			public function fuzzyClick():void{
+				populateCandidateEvents();
+				this.sfartsService.tixGetMainAbbrevByMasterID(int(this.dgTIXFuzzyTargets.selectedItem.master_id));
+			}
+			
+			
+			public function handleTixGetMainAbbrevByMasterID(event:ResultEvent):void{
+				oAbbrev = event.result as Object;
+			}
+			
+			public function handleSeeCurrentOrgFuzzyLookup(event:ResultEvent):void{
+				qFuzzyLookupResults = event.result as ArrayCollection;
+			}
+			
+			public function handleTixGetEventsForThisComp_ID(event:ResultEvent):void{
+				qTIXEventCandidatesForOrg = event.result as ArrayCollection;
+				trace('event returned');
+			}
+			
+			public function insertTicketText():void{
+				var endDatex:Date = new Date(this.dgTargetEvents.selectedItem.show_date);
+				this.sfartsService.insertFreeNightLink(int(this.dgOrgevents.selectedItem.Event_Num),endDatex);
+				
+			}
+			
+			public function getSubstringReturn(event:ResultEvent):void{
+				qSubString = event.result as ArrayCollection;
+			}
+			
+			public function updateTextBoxes():void{
+				//this.sfArtsID.text = this.dbSFarts.selectedItem.Org_Num;
+				//this.orgName.text = this.dbSFarts.selectedItem.Org_Name;
+			}
+			
+			public function getFreeEventTargetsReturn(event:ResultEvent):void{
+				qFreeEventTargets = event.result as ArrayCollection;
+			}
+			
+			
+			public function getStartingEvents(event:ResultEvent):void{
+			qbaseEventArray=event.result as ArrayCollection;
+			numberOfRecords = qbaseEventArray.length
+			qbaseEventArray.filterFunction = filterForTestData;
+			}
+			
+			public function getUnmatchedSFarts(event:ResultEvent):void{
+				qUnmatchedSF = event.result as ArrayCollection;
+			}
+			
+			public function getUnmatchedTBA(event:ResultEvent):void{
+				qUnmatched = event.result as ArrayCollection;
+			}
+			
+			public function getVenueData(event:ResultEvent):void{
+			oVenueData=event.result as Object;
+			//cboState0.selectedValue = oIndividualData.STATE_ID;
+			}
+			
+			public function getAllVenueAddressesSF(event:ResultEvent):void{
+				qbaseEventArray=event.result as ArrayCollection;
+				numberOfRecords = qbaseEventArray.length;
+			}
+			
+			public function getOrgNames(event:ResultEvent):void{
+			qOrgNames=event.result as ArrayCollection;
+			addItemToArray();
+			}
+			
+			public function addItemToArray():void{
+				var item:Object = new Object();
+				item.label = 'Begin Typing Org. Name Here...';
+				item.data = 0;
+				qOrgNames.addItemAt(item,0);
+				this.smartComboBox.selectedIndex = 0;
+			}
+			
+			public function assignTextField():void{
+			this.sfArtsID.text = this.dgSubStringReturn.selectedItem.Org_Num;	
+			}
+			
+			public function initApp():void{
+				sfartsService.getAllVenueAddressesSF();
+				this.sfartsService.syncSFARTS_TBA_Table();
+                var appid:String =  'bkEJMsjV34Grj6ePcxJjG4TRRjoG_qtE5xI7N0PWFOfDCGf2keo5WdAZA6.Aq.lPTQ--'
+                
+                // create a new YahooMap object.
+                _yahooMap = new YahooMap(); 
+                
+                // list for the MAP_INITIALIZE event from YahooMap
+                _yahooMap.addEventListener(YahooMapEvent.MAP_INITIALIZE, handleMapInitialize);
+                
+                // initialize the map, passing the app-id, width and height.
+                _yahooMap.init(appid,mapContainer.width,mapContainer.height);
+                 
+                mapContainer.addChild(_yahooMap); 
+                mapContainer.addEventListener(ResizeEvent.RESIZE, handleContainerResize); 
+                 
+                _yahooMap.addPanControl(); 
+                _yahooMap.addZoomWidget(); 
+                //_yahooMap.addTypeWidget();  
+                
+                this.radioAll.selected = true;   
+                makeSaveBtnNotVisible();    
+			}
+			
+			 private function handleMapInitialize(event:YahooMapEvent):void  
+            { 
+                // creating a new address object, passing our address string as the single parameter. 
+                _address = new Address("120 Van Ness Avenue, San Francisco, CA"); 
+                 
+                // listen for the GEOCODER_SUCCESS event dispatched when the data comes back from the webservice.
+               // _address.addEventListener(GeocoderEvent.GEOCODER_SUCCESS, handleGeocodeSuccess);
+                
+                // send the geocode request.
+                _address.geocode(); 
+            } 
+             
+            private function handleNewAddress():void{
+            	 // creating a new address object, passing our address string as the single parameter. 
+                trace(dg1.selectedItem.Venue_address + ' ' + dg1.selectedItem.Venue_City);
+               
+                _address = new Address(dg1.selectedItem.Venue_address + ' ' + dg1.selectedItem.Venue_City + ' CA'); 
+                 
+                // listen for the GEOCODER_SUCCESS event dispatched when the data comes back from the webservice.
+               // _address.addEventListener(GeocoderEvent.GEOCODER_SUCCESS, handleGeocodeSuccess);
+                
+                // send the geocode request.
+                _address.geocode(); 
+                var marker:Marker = new SimpleMarker();
+                marker.address = _address;
+                 _yahooMap.markerManager.removeAllMarkers();
+                  try
+                {
+                _yahooMap.markerManager.addMarker(marker); 
+                }
+                catch(error:Error)
+                {
+                	return;
+                }
+            } 
+            /* 
+            private function handleGeocodeSuccess(event:GeocoderEvent):void  
+            { 
+                // retrieve the first result returned by the geocoder. 
+                var result:GeocoderResult = _address.geocoderResultSet.firstResult; 
+                
+                // then we'll get the zoom level and center latlon to position the map on. 
+                _yahooMap.zoomLevel = result.zoomLevel; 
+                _yahooMap.centerLatLon = result.latlon; 
+                latLon = result.latlon;
+                trace(latLon);
+                this.strlatLon = latLon.lat + ',' + latLon.lon;
+                this.lat = String(latLon.lat);
+                this.lon = String(latLon.lon);
+               this.zip = int(result.uzip);
+                trace(strlatLon);
+                
+                punchLatLon(strlatLon,lat,lon,zip);
+                // Now we have 
+                
+            } 
+            */
+            
+            private function punchLatLon(latlon:String, lat:String, lon:String,zip:int):void{
+            	if (this.boolRepopping == false){
+            	if (this.oVenueData){
+	            	if (!this.oVenueData.LAT_LON){
+	            		trace('it is not here');
+	            		this.sfartsService.punchInLat_Lon2(strlatLon,lat,lon,int(dg1.selectedItem.ID),zip);
+	            		}
+            		} 
+            	}else{
+            		this.sfartsService.punchInLat_Lon2(strlatLon,lat,lon,int(dg1.selectedItem.ID),zip);
+            		this.boolRepopping = false;
+            	}
+            }
+            
+             
+            private function handleContainerResize(event:ResizeEvent):void {
+                // set the size of the map based on its containers size.
+                _yahooMap.setSize(mapContainer.width,mapContainer.height); 
+            }
+			
+			public function setFilterString():void{
+				filterString = '(item.Discipline == "Music")';
+			}
+			
+			/* the signature of a filter function is fixed and 
+                has to be like the that of this function */
+               public function filterForTestData(item:Object):Boolean{
+                       if(item.Discipline == 'Music') return true;
+                       else return false;      
+                }
+                
+                /* the filter funcion is called when refresh() method is invoked on 
+                 the collection */
+                public function applyFilter():void{
+                        qbaseEventArray.refresh();
+                        numberOfRecords = qbaseEventArray.length;
+                }
+			
+			      
+			      public function setText(event:Event) : void{
+			        //scOutput.text = smartComboBox.selectedLabel;
+			         this.focusManager.setFocus(dg1);
+			        this.dg1.selectedIndex = this.smartComboBox.selectedIndex;
+			        this.dg1.scrollToIndex(this.smartComboBox.selectedIndex);
+			        this.sfartsService.getAddressDetailsForVenue (int(dg1.selectedItem.ID));
+			        handleNewAddress();
+			            			}
+      			
+      			public function handleDGClick(event:Event):void{
+      				try
+      				{
+      				
+      				this.sfartsService.getAddressDetailsForVenue (int(dg1.selectedItem.ID));
+      				this.smartComboBox.selectedIndex = this.dg1.selectedIndex;
+      				handleNewAddress();
+      				}
+      				catch(error:Error){
+      					return;
+      				}
+      			}
+      			
+      			
+      			public function updateTheAddress():void{
+      				this.sfartsService.updateVenueData(
+      				this.dg1.selectedItem.ID,
+      				this.venueName.text,
+      				this.venue_address.text,
+      				this.venue_city.text,
+      				int(this.venue_zip.text),
+      				this.cboNeighborhood.selectedItem.data,
+      				this.venue_web.text
+      				)
+      			}
+      			
+      			public function makeSaveBtnVisible():void{
+      				this.btnSave.visible = true;
+      			}
+      			
+      			public function makeSaveBtnNotVisible():void{
+      				this.btnSave.visible = false;
+      			}
+      			
+      			public function getEventsForOrg(event:ResultEvent):void{
+      				this.qeventsForOrg = event.result as ArrayCollection;
+      			}
+      			
+      			public function selectTargetEvent():void{
+      				this.sfartsService.getEventsForOrgFree(int(this.dgTargetEvents.selectedItem.Org_Num));
+      				trace(this.dgTargetEvents.selectedItem.Org_Num);
+      			}
+      			
+      			public function handleInsertFreeNightLink(event:ResultEvent):void{
+      				this.sfartsService.getEventsForOrgFree(int(this.dgTargetEvents.selectedItem.Org_Num));
+      			}
+      			
+      			public function handlegetTIXFuzzyLookupBySimilarity(event:ResultEvent):void{
+      			 qTIXFuzzyLookUpBySimilarity = event.result as ArrayCollection;
+      			}
+      			
+      			public function populateCandidateEvents():void{
+      				trace(this.dgTIXFuzzyTargets.selectedItem.company_id);
+      				this.sfartsService.tixGetEventsForThisComp_ID(this.dgTIXFuzzyTargets.selectedItem.company_id);
+      			}
+      			
+      			public function handlePunchInTIXLink(event:ResultEvent):void{
+      				populateCandidateEvents();
+      			}
+      			
+      			public function punchInTheData():void{
+      				trace('master_id =' + this.dgTIXFuzzyTargets.selectedItem.master_id);
+      				this.sfartsService.punchInTIXLink(this.dgEventCandidates.selectedItem.Event_Num,this.dgTIXFuzzyTargets.selectedItem.master_id);
+      			}
+      			
+      			public function handleGetTixStatus(event:ResultEvent):void{
+      				qTIXStatus = event.result as  ArrayCollection;
+      			}
+	]]>
+</mx:Script>
+	
+	
+
+
+
+ <mx:RemoteObject
+      id="sfartsService"
+      destination="ColdFusion"
+      source="sfarts.jftemp.sfAIR"   
+      showBusyCursor="true" 
+     endpoint = "http://www.sfarts.org/flex2gateway/">
+	
+	  <!-- Define the methods of the CFC within the remote object and assign function to handle  -->     
+
+	
+	<mx:method  name="getAllVenueAddressesSF"  result="getAllVenueAddressesSF(event)" fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="getAddressDetailsForVenue"  result="getVenueData(event)" fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="getActiveVenueAddressesSF"  result="getAllVenueAddressesSF(event)" fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="getActiveVenueAddressesSFWithNoDATA"  result="getAllVenueAddressesSF(event)" fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="getActiveVenueAddressesSFWithNoLAT_LON"  result="getAllVenueAddressesSF(event)" fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="updateVenueData"  fault="Alert.show(event.fault.message)"/>
+	<mx:method name="getUnmatchedTBA" result="getUnmatchedTBA(event)" fault="Alert.show(event.fault.message)" />
+	<mx:method name="getUnmatchedSFarts" result="getUnmatchedSFarts(event)" fault="Alert.show(event.fault.message)" />
+	<mx:method  name="addtbaID"  fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="syncSFARTS_TBA_Table"    fault="Alert.show(event.fault.message)"/>
+	<mx:method name="searchBySubsString" result="getSubstringReturn(event)" fault="Alert.show(event.fault.message)" />
+	<mx:method name="getFreeEventTargets" result="getFreeEventTargetsReturn(event)" fault="Alert.show(event.fault.message)" />
+	<mx:method name="getEventsForOrgFree" result="getEventsForOrg(event)" fault="Alert.show(event.fault.message)" />
+	<mx:method  name="insertFreeNightLink"  result="handleInsertFreeNightLink(event)"  fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="seeCurrentOrgFuzzyLookup"  result="handleSeeCurrentOrgFuzzyLookup(event)"  fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="getTIXFuzzyLookupBySimilarity"  result="handlegetTIXFuzzyLookupBySimilarity(event)"  fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="tixGetEventsForThisComp_ID"  result="handleTixGetEventsForThisComp_ID(event)"  fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="punchInTIXLink"  result="handlePunchInTIXLink(event)"  fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="getTixStatus"  result="handleGetTixStatus(event)"  fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="updateTIXHalfPrice"   fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="punchInLat_Long"   fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="tixGetMainAbbrevByMasterID"  result="handleTixGetMainAbbrevByMasterID(event)"  fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="getNoZipVenues"  result="handleGetNoZipVenues(event)"  fault="Alert.show(event.fault.message)"/>
+	
+</mx:RemoteObject>	
+
+<mx:HTTPService id="userRequest" url="{requestString}" useProxy="false" method="POST">
+
+ </mx:HTTPService>
+ <mx:Canvas x="49" y="28" width="900" height="932" backgroundColor="#FFFFFF" id="canvas1">
+  <mx:DataGrid x="165" y="55" height="264" id="dg1" dataProvider="{qbaseEventArray}" width="570" click="handleDGClick(event);">
+   <mx:columns>
+    <mx:DataGridColumn headerText="Venue" dataField="Venue_Name" width="200"/>
+    <mx:DataGridColumn headerText="Address" dataField="Venue_address" width="150"/>
+    <mx:DataGridColumn headerText="Neighborhood" dataField="Neighborhood" width = "150"/>
+   </mx:columns>
+  </mx:DataGrid>
+ <um:SmartCombo id="smartComboBox"
+		dataProvider="{qbaseEventArray}" caseSensitiveSearching="false" change="setText(event); " x="165" y="10"/>
+ <mx:Text x="165" y="347" text="Venue Name" id="text2"/>
+ <mx:Text x="165" y="386" text="Venue Address" id="text3"/>
+ <mx:Text x="165" y="502" text="WebSite:&#x9;" id="text6"/>
+ <mx:TextInput x="276" y="345" width="389" id="venueName" text="{oVenueData.VENUE_NAME}" change="makeSaveBtnVisible();"/>
+ <mx:TextInput x="276" y="500" width="389" text="{oVenueData.VENUE_WEB}" id="venue_web" change="makeSaveBtnVisible();"/>
+ <mx:TextInput x="276" y="384" width="389" text="{oVenueData.VENUE_ADDRESS}" id="venue_address" change="makeSaveBtnVisible();"/>
+ <mx:Text x="165" y="423" text="City" id="text4"/>
+ <mx:Text x="492" y="423" text="Zip" id="text7"/>
+ <mx:TextInput x="276" y="421" width="193" text="{oVenueData.VENUE_CITY}" id="venue_city" change="makeSaveBtnVisible();"/>
+ <mx:TextInput x="522" y="423" width="143" text="{oVenueData.VENUE_ZIP}" id="venue_zip" change="makeSaveBtnVisible();"/>
+ <mx:Text x="165" y="460" text="Neighborhood" id="text5"/>
+ 
+ <ns1:comboBox2 x="276" y="458" width="389" id="cboNeighborhood" selectedValue="{oVenueData.VENUE_NEIGHBORHOOD}" change="makeSaveBtnVisible();">
+	<mx:ArrayCollection>
+	<mx:Object label="No Data" data="0"/>
+		 <mx:Object label="Castro/Upper Market" data="1"/>
+		 <mx:Object label="Chinatown" data="2"/>
+		 <mx:Object label="Civic Center" data="3"/>
+		 <mx:Object label="Embarcadero/Financial District" data="4"/>
+		 <mx:Object label="Fisherman's Wharf" data="5"/>
+		 <mx:Object label="Haight-Ashbury" data="6"/>
+		 <mx:Object label="Golden Gate Park/Sunset" data="7"/>
+		 <mx:Object label="Bayview/Candlestick Point" data="8"/>
+		 <mx:Object label="Japantown/Fillmore" data="9"/>
+		  <mx:Object label="Marina/Presidio" data="10"/>
+		   <mx:Object label="Mission District" data="11"/>
+		    <mx:Object label="Nob Hill" data="12"/>
+		     <mx:Object label="North Beach" data="13"/>
+		      <mx:Object label="SOMA/Yerba Buena" data="14"/>
+		      <mx:Object label="Union Square" data="15"/>
+		      <mx:Object label="City Wide" data="16"/>
+		      <mx:Object label="Other Location" data="17"/>
+	</mx:ArrayCollection>
+ 
+ 
+ 
+</ns1:comboBox2>
+ <mx:Panel x="165" y="530" width="570" height="306" layout="absolute" id="panel1" visible="false">
+ <mx:UIComponent id="mapContainer" width="100%" height="100%"/>
+ </mx:Panel>
+ <mx:Button x="729" y="345" label="Save Changes" height="61" id="btnSave" width="127" click="updateTheAddress();makeSaveBtnNotVisible();"/>
+ <mx:RadioButtonGroup id="radiogroup1"/>
+ <mx:RadioButton x="760" y="126" label="All Venues" id="radioAll" groupName="radiogroup1" click="this.sfartsService.getAllVenueAddressesSF();"/>
+ <mx:RadioButton x="760" y="152" label="Active Venues Only" id="radioActive" click="this.sfartsService.getActiveVenueAddressesSF();" groupName="radiogroup1"/>
+ <mx:RadioButton x="760" y="178" label="Active with NO " groupName="radiogroup1" click="this.sfartsService.getActiveVenueAddressesSFWithNoDATA();" id="radiobutton1"/>
+ <mx:Text x="780" y="197" text="Neighborhood Data" id="text1"/>
+ <mx:Text x="780" y="239" text="Geocode Data" id="text0"/>
+ <mx:Text x="630" y="8" text="SFArts Neighborhood Data Tool" width="260" fontFamily="Verdana" fontSize="14" color="#63B5E4" id="text10"/>
+ <mx:Text x="667" y="423" text="*" id="text8"/>
+ <mx:Text x="723" y="436" text="*" id="text9"/>
+ <mx:TextArea x="736" y="435" width="106" height="87" borderStyle="none" id="textarea1">
+ 	<mx:text>Must be a simple 5 digit zip. No hyphens or that sort of stuff.</mx:text>
+ </mx:TextArea>
+ <mx:Button x="780" y="39" label="TBA" click="currentState='TBA'" id="button1"/>
+ <mx:Button x="778" y="99" label="TIX" click="currentState = 'TIX'"/>
+ <mx:RadioButton x="760" y="219" label="Active with NO" groupName="radiogroup1" click="this.sfartsService.getActiveVenueAddressesSFWithNoLAT_LON();" id="radiobutton2"/>
+ <mx:Label x="378" y="844" text="{oVenueData.LAT_LON}" width="144" id="label3"/>
+ <mx:Button x="397" y="870" label="Repop Lat Lon" click="this.boolRepopping = true;handleNewAddress();" id="button7"/>
+ <mx:RadioButton x="767" y="265" label="No Zip" groupName="radiogroup1" id="radioZip" click="this.sfartsService.getNoZipVenues();"/>
+ <mx:Button x="767" y="295" label="Add Zip Codes" click="addZipCodeWrapper()" visible="false"/>
+
+ 
+ </mx:Canvas>
+
+	
+</mx:WindowedApplication>

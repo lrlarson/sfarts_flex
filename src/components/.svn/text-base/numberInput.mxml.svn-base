@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TextInput xmlns:mx="http://www.adobe.com/2006/mxml" textAlign="right" >
+
+   <mx:Script>
+      <![CDATA[
+		import mx.formatters.NumberBase;
+		public static var numberBase: NumberBase = new NumberBase(".", ",");
+		
+         // set for selectedValue
+         public function get numValue():Number
+         {
+         	if (this.text.length == 0)
+         		return 0;
+         		
+         	trace(Number(numberBase.parseNumberString(this.text)));	
+			return (Number(numberBase.parseNumberString(this.text)));
+			//return (Number(this.text));
+         }
+      ]]>
+   </mx:Script>
+
+</mx:TextInput>

@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="900" height="630"  backgroundImage="images/bg.png">
+
+	
+
+	<mx:Script>
+
+		<![CDATA[
+
+			import flash.net.navigateToURL;
+
+			import mx.events.ListEvent;
+
+			import mx.events.DataGridEvent;
+
+			import flash.events.Event;
+
+            import flash.net.URLRequest;
+
+			import mx.collections.XMLListCollection;
+
+			import mx.collections.ArrayCollection;
+
+			import mx.controls.Alert;
+
+			import mx.rpc.events.ResultEvent;
+
+			
+
+			[Bindable] public var nameList:ArrayCollection = new ArrayCollection();
+
+			[Bindable] public var nameListDetails:ArrayCollection = new ArrayCollection();
+
+			[Bindable] public var employeeNameList:ArrayCollection = new ArrayCollection();
+
+			[Bindable] public var employeeByLastName:ArrayCollection = new ArrayCollection();
+
+			
+
+			public var actor_id:int;
+
+			public var u:URLRequest;
+
+	        public var m:URLRequest;
+
+	        public var indEmail:URLRequest;
+
+	        public var indEmail2:URLRequest;
+
+	        public var printDir:URLRequest;
+
+			
+
+			private function getNameList_result(event:ResultEvent):void
+
+			{
+
+				nameList = event.result as ArrayCollection;
+
+			}
+
+			
+
+			private function getNameListID_result(event:ResultEvent):void
+
+			{
+
+				nameListDetails = event.result as ArrayCollection;
+
+			}
+
+			
+
+			private function getEmployeeNameList_result(event:ResultEvent):void
+
+			{
+
+				employeeNameList = event.result as ArrayCollection;
+
+			}	
+
+			
+
+			private function getStaffByName_result(event:ResultEvent):void
+
+			{
+
+				employeeByLastName = event.result as ArrayCollection;
+
+			}	
+
+			
+
+			private function btnGetNameList_Click(event:Event):void
+
+			{	
+
+				ws.getPCMList();
+
+				
+
+				pCompany.visible = true;
+
+				lastNameSearchText.visible = true;
+
+				btnLastName.visible = true;
+
+				btnGetNameList.visible = false;
+
+				btnPrint.visible = true;
+
+				
+
+			}
+
+			
+
+			private function btnFindStaff_Click(event:Event):void
+
+			{
+
+				
+
+				//Alert.show("One moment while the list populates.\nYour list may be blank for a few seconds.");
+
+			
+
+				wsLast.getStaffByName(lastNameSearchText.text);
+
+			
+
+				pDetails.visible = false;
+
+				pStaff.visible = false;
+
+				pCompany.visible = false;
+
+				btnReset.visible = true;
+
+				pLastName.visible = true;
+
+			}
+
+			
+
+			private function btnReset_Click(event:Event):void
+
+			{
+
+				btnReset.visible = false;
+
+				pDetails.visible = true;
+
+				pCompany.visible = true;
+
+				pStaff.visible = true;
+
+				pLastName.visible = false;
+
+			}
+
+			
+			private function onSpecialStaffClick():void 
+
+			{
+
+				
+
+				actor_id = dgLastName.selectedItem.actorID
+
+				
+
+				// TROUBLE SPOT HERE
+
+				
+
+				wsEmp.getEmployeeList(actor_id);
+
+				ws.getPCMList(actor_id);
+				
+				
+				//onItemClick(e);
+				
+				pCompany.visible = true;
+
+				pDetails.visible = true;
+
+				pStaff.visible = true;
+
+				pLastName.visible = false;
+
+				lastNameSearchText.visible = true;
+
+				btnLastName.visible = true;
+
+				btnGetNameList.visible = false;
+
+				btnPrint.visible = true;
+
+											
+
+			}
+			private function onStaffClick( e:ListEvent ):void 
+
+			{
+
+				
+
+				actor_id = dgLastName.selectedItem.actorID
+
+				
+
+				// TROUBLE SPOT HERE
+
+				
+
+				wsEmp.getEmployeeList(actor_id);
+
+				ws.getPCMList(actor_id);
+				
+				
+				onSpecialItemClick();
+				
+				pCompany.visible = true;
+
+				pDetails.visible = true;
+
+				pStaff.visible = true;
+
+				pLastName.visible = false;
+
+				lastNameSearchText.visible = true;
+
+				btnLastName.visible = true;
+
+				btnGetNameList.visible = false;
+
+				btnPrint.visible = true;
+
+											
+
+			}
+
+			private function onSpecialItemClick():void 
+
+			{
+
+				
+
+				pDetails.visible = true;
+
+				pStaff.visible = true;
+
+				
+
+				//actor_id = dgCompanies.selectedItem.id;
+
+				
+
+				sortNameLabel.text = dgCompanies.selectedItem.name;
+
+				street1Label.text = dgCompanies.selectedItem.street1;
+
+				street2Label.text = dgCompanies.selectedItem.street2;
+
+				cityLabel.text = dgCompanies.selectedItem.city;
+
+				stateLabel.text = dgCompanies.selectedItem.state;
+
+				zipLabel.text = dgCompanies.selectedItem.zip;
+
+				phoneLabel.text = dgCompanies.selectedItem.phone;
+
+				faxLabel.text = dgCompanies.selectedItem.fax;
+
+				
+
+				genEmailButton.label = dgCompanies.selectedItem.email;
+
+				webAddressBtm.label = dgCompanies.selectedItem.webSite;
+
+				
+
+				u = new URLRequest("http://" + dgCompanies.selectedItem.webSite);
+
+	         	m = new URLRequest("mailto:" + dgCompanies.selectedItem.email);
+
+				
+
+				wsEmp.getEmployeeList(actor_id);
+
+			}
+
+			private function onItemClick( e:ListEvent ):void 
+
+			{
+
+				
+
+				pDetails.visible = true;
+
+				pStaff.visible = true;
+
+				
+
+				actor_id = dgCompanies.selectedItem.id;
+
+				
+
+				sortNameLabel.text = dgCompanies.selectedItem.name;
+
+				street1Label.text = dgCompanies.selectedItem.street1;
+
+				street2Label.text = dgCompanies.selectedItem.street2;
+
+				cityLabel.text = dgCompanies.selectedItem.city;
+
+				stateLabel.text = dgCompanies.selectedItem.state;
+
+				zipLabel.text = dgCompanies.selectedItem.zip;
+
+				phoneLabel.text = dgCompanies.selectedItem.phone;
+
+				faxLabel.text = dgCompanies.selectedItem.fax;
+
+				
+
+				genEmailButton.label = dgCompanies.selectedItem.email;
+
+				webAddressBtm.label = dgCompanies.selectedItem.webSite;
+
+				
+
+				u = new URLRequest("http://" + dgCompanies.selectedItem.webSite);
+
+	         	m = new URLRequest("mailto:" + dgCompanies.selectedItem.email);
+
+				
+
+				wsEmp.getEmployeeList(actor_id);
+
+			}
+
+			
+
+			private function btn_click(event:MouseEvent):void
+
+        	{
+
+               navigateToURL(u); 
+
+        	}	
+
+        	
+
+        	private function goEmail(event:MouseEvent):void
+
+        	{
+
+               navigateToURL(m); 
+
+        	}	
+
+        	
+
+        	private function btnPrint_Click(event:MouseEvent):void
+
+        	{
+
+        		printDir = new URLRequest("http://www.operaamerica.org/applications/internal/PCMDirXML/generateXML.aspx");
+
+               	navigateToURL(printDir); 
+
+        	}	
+
+    	]]>
+
+	</mx:Script>
+
+	
+
+	<mx:WebService id="ws" wsdl="http://www.operaamerica.org/includes/webservices/getpcmlist.asmx?WSDL">
+
+		<mx:operation name="getPCMList" result="getNameList_result(event)"/>
+
+	</mx:WebService>
+
+	
+
+	<mx:WebService id="wsList" wsdl="http://www.operaamerica.org/includes/webservices/getpcmdetails.asmx?WSDL">
+
+		<mx:operation name="getPCMDetails" result="getNameListID_result(event)"/>
+
+	</mx:WebService>
+
+	
+
+	<mx:WebService id="wsEmp" wsdl="http://www.operaamerica.org/includes/webservices/getActorEmployees.asmx?WSDL">
+
+		<mx:operation name="getEmployeeList" result="getEmployeeNameList_result(event)"/>
+
+	</mx:WebService>
+
+	
+
+	<mx:WebService id="wsLast" wsdl="http://www.operaamerica.org/includes/webservices/getStaffByName.asmx?WSDL" showBusyCursor="true">
+
+		<mx:operation name="getStaffByName" result="getStaffByName_result(event)"/>
+
+	</mx:WebService>
+
+		
+
+	<mx:Button id="btnGetNameList" click="btnGetNameList_Click(event)" label="Begin Using the Directory" x="480.5" y="363" fillAlphas="[1.0, 1.0, 1.0, 1.0]" fillColors="[#E5E5E5, #999999]"/>
+
+	<mx:Panel x="10" y="40" width="478" height="200" layout="absolute" title="Select A Company" visible="false" id="pCompany" fontFamily="Verdana"  color="#FFFFFF" borderColor="#000000">
+
+		<mx:DataGrid dataProvider="{nameList}" id="dgCompanies" x="0" y="0" itemClick="onItemClick(event);" width="458" height="160" color="#000000">
+
+			<mx:columns>
+
+				<mx:DataGridColumn dataField="name" headerText="Company" sortDescending="true"/>
+
+				<mx:DataGridColumn dataField="city" headerText="City" sortDescending="false"/>
+
+				<mx:DataGridColumn dataField="state" headerText="State" sortDescending="false"/>
+
+			</mx:columns>
+
+		</mx:DataGrid>
+
+	</mx:Panel>
+
+	
+
+	
+
+	<mx:Panel x="496" y="40" width="392" height="200" layout="absolute" title="Company Details" visible="true" id="pDetails" fontFamily="Verdana" color="#FFFFFF" borderColor="#000000">
+
+		<mx:Label x="10" y="4" id="sortNameLabel" width="352" color="#000000" fontSize="12" fontWeight="bold"/>
+
+		<mx:Label x="10" y="23" text="Street1:" fontWeight="bold" color="#000000"/>
+
+		<mx:Label x="70" y="23" width="292" id="street1Label" color="#000000"/>
+
+		<mx:Label x="10" y="38" text="Street2:" fontWeight="bold" color="#000000"/>
+
+		<mx:Label x="70" y="38" width="292" id="street2Label" color="#000000"/>
+
+		<mx:Label x="30" y="53" text="City:" fontWeight="bold" color="#000000"/>
+
+		<mx:Label x="70" y="53" width="100" id="cityLabel" color="#000000"/>
+
+		<mx:Label x="168" y="53" fontWeight="bold" text="State:" color="#000000"/>
+
+		<mx:Label x="205" y="53" id="stateLabel" width="32" color="#000000"/>
+
+		<mx:Label x="236" y="53" text="Zip:" fontWeight="bold" color="#000000"/>
+
+		<mx:Label x="260" y="53" width="102" id="zipLabel" color="#000000"/>
+
+		<mx:Label x="17" y="79" text="Phone:" fontWeight="bold" color="#000000"/>
+
+		<mx:Label x="70" y="79" width="292" id="phoneLabel" color="#000000"/>
+
+		<mx:Label x="32" y="94" text="Fax:" fontWeight="bold" color="#000000"/>
+
+		<mx:Label x="70" y="94" width="292" id="faxLabel" color="#000000"/>
+
+		<mx:Label x="20" y="120" text="E-Mail:" fontWeight="bold" color="#000000"/>
+
+		<mx:LinkButton x="71" y="118" textAlign="left" width="291" id="genEmailButton" click="goEmail(event)" color="#000000"/>
+
+		<mx:Label x="28" y="138" text="Web:" fontWeight="bold" color="#000000"/>
+
+		<mx:LinkButton x="71" y="135" width="291" id="webAddressBtm" click="btn_click(event)" textAlign="left" cornerRadius="4" color="#000000"/>
+
+	</mx:Panel>
+
+	
+
+	<mx:Panel x="10" y="248" width="878" height="340" layout="absolute" title="Staff Listings" visible="false" id="pStaff" fontFamily="Verdana"  color="#FFFFFF" borderColor="#000000">
+
+		<mx:DataGrid dataProvider="{employeeNameList}" id="dgEmployees" x="0" y="0" width="858" height="276" color="#000000">
+
+			<mx:columns>
+
+				<mx:DataGridColumn dataField="firstName" headerText="First" width="65"/>
+
+				<mx:DataGridColumn dataField="middleInit" headerText="M" width="17"/>
+
+				<mx:DataGridColumn dataField="lastName" headerText="Last" width="65"/>
+
+				<mx:DataGridColumn dataField="board" headerText="" width="20"/>
+
+				<mx:DataGridColumn dataField="title" headerText="Title" width="200"/>
+
+				<mx:DataGridColumn dataField="phone" headerText="Phone" width="100"/>
+
+				<mx:DataGridColumn dataField="email" headerText="E-Mail" width="200">
+
+					<mx:itemRenderer>
+
+					    <mx:Component>
+
+					      	<mx:LinkButton cornerRadius="4" label="{data.email}" click="parentDocument.indEmail = new URLRequest('mailto:' + data.email);flash.net.navigateToURL(parentDocument.indEmail);" />
+
+					    </mx:Component>
+
+				    </mx:itemRenderer>
+
+				</mx:DataGridColumn>
+
+			</mx:columns>
+
+		</mx:DataGrid>
+
+		<mx:Label x="10" y="279" text="* - OPERA America Board of Directors" color="#000000"/>
+
+	</mx:Panel>
+
+	
+
+	<mx:TextInput x="10" y="10" width="325" id="lastNameSearchText" visible="false"/>
+
+	<mx:Button x="343" y="10" label="Search by Last Name" id="btnLastName" visible="false" click="btnFindStaff_Click(event)" fillAlphas="[1.0, 1.0, 1.0, 1.0]" fillColors="[#FFFFFF, #999999]"/>
+
+	
+
+	<mx:Button x="680" y="10" label="Back to Main" click="btnReset_Click(event)" id="btnReset" visible="false" fillAlphas="[1.0, 1.0, 1.0, 1.0]" fillColors="[#FFFFFF, #999999]"/>
+
+	<mx:Button x="786" y="10" label="Print Version" click="btnPrint_Click(event)" id="btnPrint" visible="false" fillAlphas="[1.0, 1.0, 1.0, 1.0]" fillColors="[#FFFFFF, #999999]"/>
+
+	
+
+	<mx:Panel x="10" y="40" width="876" height="534" layout="absolute" title="Results by Last name" id="pLastName" visible="false" fontFamily="Verdana"  color="#FFFFFF" borderColor="#000000">
+
+		<mx:DataGrid x="0" y="0" width="856" height="473" id="dgLastName" dataProvider="{employeeByLastName}" color="#000000" itemClick="onStaffClick(event);">
+
+			<mx:columns>
+
+				<mx:DataGridColumn headerText="First" dataField="firstName" width="65"/>
+
+				<mx:DataGridColumn headerText="Last" dataField="lastName" width="65"/>
+
+				<mx:DataGridColumn headerText="" dataField="board" width="20"/>
+
+				<mx:DataGridColumn headerText="Title" dataField="title" width="200"/>
+
+				<mx:DataGridColumn headerText="Company" dataField="company"/>
+
+				<mx:DataGridColumn headerText="Phone" dataField="phone" width="100"/>
+
+				<mx:DataGridColumn headerText="E-mail" dataField="email" width="200">
+
+					<!--<mx:itemRenderer>
+
+					    <mx:Component>
+
+					      	<mx:LinkButton cornerRadius="4" label="{data.email}" click="parentDocument.indEmail2 = new URLRequest('mailto:' + data.email);flash.net.navigateToURL(parentDocument.indEmail2);" />
+
+					    </mx:Component>
+
+				    </mx:itemRenderer>-->
+
+				</mx:DataGridColumn>
+
+			</mx:columns>
+
+		</mx:DataGrid>
+
+		<mx:Label x="10" y="475" text="* - OPERA America Board of Directors" color="#000000"/>
+
+	</mx:Panel>
+
+	<mx:Label x="480.5" y="390" text="Requires an active internet connection." color="#FFFFFF"/>
+
+	
+
+</mx:WindowedApplication>
+

@@ -1,0 +1,2112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" creationComplete="initApp();" width="1400" height="1400" xmlns:ns1="com.universalmind.controls.*">
+	<!-- Declare a DateFormatter and define parameters.-->
+    <mx:DateFormatter id="dateDisplay" 
+        formatString="M/D/YYYY"
+     />
+	
+	<mx:states>
+		<mx:State name="editStory">
+			<mx:RemoveChild target="{dgMusic}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="487.5" y="56" text="{oStory.DISPSTRING}" id="disciplineText" fontSize="24" textAlign="center"/>
+			</mx:AddChild>
+			<mx:SetStyle target="{canvas1}" name="color" value="#000708"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:RichTextEditor x="244.5" y="149" id="textEditor" width="763" height="204" text="{oStory.STORYTEXT}" enabled="true" fontSize="12" valueCommit="doWordCount1();">
+				</mx:RichTextEditor>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{textEditor}" position="before">
+				<mx:Text x="244.5" y="106" text="Title:" id="titleText" fontSize="24"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="359" y="104" fontSize="24" width="648.5" id="titleTI" text="{oStory.TITLE}"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="244" y="399" text="PostDate:" fontSize="18" id="text3"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="202" y="435" text="CompostDate:" fontSize="18" id="text1"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="222" y="471" text="Date String:" fontSize="18" id="text2"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="346" y="397" id="postDateTI" text="{dateDisplay.format(oStory.POSTDATE)}" width="182" focusOut="editStartFocusOut(this.postDateTI.text);"/>
+			</mx:AddChild>
+			<mx:SetStyle target="{canvas1}" name="fontSize" value="18"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="346" y="433" id="compostDateTI" text="{dateDisplay.format(oStory.COMPOSTDATE)}" width="182" focusOut="editEndFocusOut(this.compostDateTI.text);"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="346" y="469" id="dateStrTI" width="182" text="{oStory.DATESTRING}"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{text1}" position="before">
+				<mx:Text x="211" y="547" text="This is a PhotoStory:" fontSize="18" id="text5"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:CheckBox x="411" y="553" id="photoStoryCHK" selected="{oStory.PHOTOSTORY}" change="exposePhotoURL();" />
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{text1}" position="before">
+				<mx:Text x="183" y="580" text="Main Image File" fontSize="18" width="157" id="imageLabel"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="346" y="585" width="565.5" id="imageNameTI" fontSize="10" text="{oStory.IMAGENAME}" />
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{text1}" position="before">
+				<mx:Text x="244" y="664" text="Images:" fontSize="18" width="96" id="imagePictureLabel"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Image x="411" y="638" width="180" id="image" height="123" source="{oStory.IMAGENAME}"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{text2}" position="before">
+				<mx:Text x="244" y="361" text="This story is LIVE:" fontSize="18" id="text0"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:CheckBox x="431" y="367" id="liveChk" selected ="{oStory.LIVE}"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="536" y="375" width="471.5" id="dgLiveStories" dataProvider="{dispItems}"  click="this.sfartsService.getSpecificStory(this.dgLiveStories.selectedItem.id);">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Title" dataField="title" fontSize="10" width="60"/>
+						<mx:DataGridColumn headerText="Post" dataField="postDate" fontSize="10"  width="18"/>
+						<mx:DataGridColumn headerText="Compost" dataField="compostDate" fontSize="10" width="18" />
+						<mx:DataGridColumn headerText="Order" dataField="displayOrder" fontSize="10" width="18" />
+						<mx:DataGridColumn headerText="Live" dataField="live" width="10" fontSize="10"  
+							 editable="false" 
+			                rendererIsEditor="false" 
+			                itemRenderer="mx.controls.CheckBox" 
+			                editorDataField="selected" 
+					/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="431" y="62" text="POD:" id="text48"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="536" y="360" text="{oStory.DISPSTRING} stories in the que:" fontSize="10" fontFamily="Verdana" id="text4"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="668.5" y="835" label="Save All Changes"
+					 click="
+					 saveAndReturn();
+					 "
+				
+					 id="button2"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="938" y="835" label="Forget Changes and Return" click="currentState=''" id="button3"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="774" y="526" text="{oStory.DISPSTRING}"  id="dispLabel1" fontFamily="Verdana" fontSize="18" visible="true"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="536" y="525" text="There are" id="thereAre0" visible="true"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="629" y="526" text="{oStoryCount.COUNT}" id="liveStories0" width="35" height="28" visible="true"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="651" y="526" text="live stories in" id="liveStoriesLabel0" visible="true"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{text14}"/>
+			<mx:RemoveChild target="{musicPix0}"/>
+			<mx:RemoveChild target="{dgTheater}"/>
+			<mx:RemoveChild target="{musicPix}"/>
+			<mx:RemoveChild target="{text15}"/>
+			<mx:RemoveChild target="{musicPix1}"/>
+			<mx:RemoveChild target="{text16}"/>
+			<mx:RemoveChild target="{dgDance}"/>
+			<mx:RemoveChild target="{musicPix2}"/>
+			<mx:RemoveChild target="{text17}"/>
+			<mx:RemoveChild target="{musicPix3}"/>
+			<mx:RemoveChild target="{text18}"/>
+			<mx:RemoveChild target="{musicPix4}"/>
+			<mx:RemoveChild target="{text19}"/>
+			<mx:RemoveChild target="{text20}"/>
+			<mx:RemoveChild target="{text21}"/>
+			<mx:RemoveChild target="{text22}"/>
+			<mx:RemoveChild target="{musicPix5}"/>
+			<mx:RemoveChild target="{musicPix6}"/>
+			<mx:RemoveChild target="{text24}"/>
+			<mx:RemoveChild target="{text23}"/>
+			<mx:RemoveChild target="{text25}"/>
+			<mx:RemoveChild target="{dgVideo}"/>
+			<mx:RemoveChild target="{text27}"/>
+			<mx:RemoveChild target="{musicPix7}"/>
+			<mx:RemoveChild target="{musicPix8}"/>
+			<mx:RemoveChild target="{text28}"/>
+			<mx:RemoveChild target="{dgVideo0}"/>
+			<mx:RemoveChild target="{text29}"/>
+			<mx:RemoveChild target="{musicPix10}"/>
+			<mx:RemoveChild target="{musicPix9}"/>
+			<mx:RemoveChild target="{text30}"/>
+			<mx:RemoveChild target="{text31}"/>
+			<mx:RemoveChild target="{dgVideo1}"/>
+			<mx:RemoveChild target="{text32}"/>
+			<mx:SetProperty name="height" value="1012"/>
+			<mx:RemoveChild target="{text35}"/>
+			<mx:RemoveChild target="{dgVideo2}"/>
+			<mx:RemoveChild target="{text41}"/>
+			<mx:RemoveChild target="{dgVideo3}"/>
+			<mx:RemoveChild target="{text33}"/>
+			<mx:RemoveChild target="{text34}"/>
+			<mx:RemoveChild target="{text36}"/>
+			<mx:RemoveChild target="{text40}"/>
+			<mx:RemoveChild target="{text38}"/>
+			
+			<mx:RemoveChild target="{text39}"/>
+			<mx:RemoveChild target="{text37}"/>
+			<mx:RemoveChild target="{musicPix11}"/>
+			<mx:RemoveChild target="{musicPix12}"/>
+			<mx:RemoveChild target="{musicPix13}"/>
+			<mx:RemoveChild target="{musicPix14}"/>
+			<mx:RemoveChild target="{musicPix15}"/>
+			<mx:RemoveChild target="{musicPix16}"/>
+			<mx:RemoveChild target="{dgEvents}"/>
+			<mx:SetProperty target="{canvas1}" name="height" value="938"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="246" y="507" text="Event ID:" id="text42"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="346" y="509" width="182" id="eventIDTI" text="{oStory.EVENT}"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{text12}"/>
+			<mx:RemoveChild target="{dgLiterary}"/>
+			<mx:AddChild relativeTo="{text1}" position="before">
+				<mx:Text x="939.5" y="779" text="Display Order:" fontSize="18" width="139" id="imagePictureLabel1" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="1095" y="780" width="72" id="displayOrder1" text="{oStory.DISPLAYORDER}" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="348" y="610" text="180x123" width="123" fontSize="12" id="text49"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{cboDaysAhead}"/>
+			<mx:RemoveChild target="{button4}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="1031" y="186" width="64" id="txtWordCount0" fontSize="12"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="1030" y="151" label="Do Word Count" fontSize="11" click="doWordCount1();" id="button5"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="1031" y="249" fontSize="11" width="64" id="txtCharacterCount1"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="1103" y="182" text="Words" fontSize="10" id="label1"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="1103" y="250" text="Characters" fontSize="10" id="label2"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{cboOffset}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{label3}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="10" y="769" width="384" id="dgStringSearch0" dataProvider="{aStringSearch0}" height="129" click="this.eventIDTI.text =  this.dgStringSearch0.selectedItem.Event_Num;">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Event Name" dataField="Event_Name" width="300"/>
+						<mx:DataGridColumn headerText="ID" dataField="Event_Num" width="100"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="10" y="729" id="searchSting0"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="202" y="732" label="Search" click="doSearch0(this.searchSting0.text);"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="309" y="732" label="Clear" click="this.searchSting0.text = '';"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="546" y="776" label="Load Picture" fontSize="12" id="btnLoadPicture" click="viewPicture();" visible="true"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{txtNumTheater}"/>
+			<mx:RemoveChild target="{txtNumTheater2}"/>
+			<mx:RemoveChild target="{text52}"/>
+			<mx:RemoveChild target="{txtNumTheater1}"/>
+			<mx:RemoveChild target="{text54}"/>
+			<mx:RemoveChild target="{txtNumTheater3}"/>
+			<mx:RemoveChild target="{text55}"/>
+			<mx:RemoveChild target="{txtNumTheater4}"/>
+			<mx:RemoveChild target="{text57}"/>
+			<mx:RemoveChild target="{txtNumTheater6}"/>
+			<mx:RemoveChild target="{txtNumTheater5}"/>
+			<mx:RemoveChild target="{label5}"/>
+			<mx:RemoveChild target="{label6}"/>
+			<mx:RemoveChild target="{label7}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="770" y="726" id="tiImageRoot"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="633.5" y="726" text="Image Root:" id="label8"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Image x="711" y="638" width="100" height="68" id="imageThumb" source="{oStory.IMAGENAMETHUMB}"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Image x="938" y="585" width="320" height="217" id="imageLarge" source="{oStory.IMAGENAMELARGE}"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="createStory" basedOn="editStory">
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<ns1:SmartCombo  id="podSelector" x="10" y="59" dataProvider="{podSubjects}" 
+					change='this.sfartsService.getEditorialForDisp(this.podSelector.selectedItem.data);
+					this.sfartsService.getNumberOfLiveStories(this.podSelector.selectedItem.data); 
+					this.thereAre.visible = true;
+					this.liveStoriesLabel.visible = true;
+					this.liveStories.visible = true;
+					this.dispLabel0.visible = true;
+					'
+					fontSize="16" creationComplete="addItemToArray();"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{disciplineText}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="484" y="60" text="{this.podSelector.selectedItem.label}"  id="dispLabel" fontFamily="Arial" fontSize="24"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{button2}"/>
+			<mx:RemoveChild target="{titleText}"/>
+			<mx:RemoveChild target="{titleTI}"/>
+			<mx:RemoveChild target="{text0}"/>
+			<mx:RemoveChild target="{liveChk}"/>
+			<mx:RemoveChild target="{text3}"/>
+			<mx:RemoveChild target="{postDateTI}"/>
+			<mx:RemoveChild target="{text1}"/>
+			<mx:RemoveChild target="{compostDateTI}"/>
+			<mx:RemoveChild target="{dateStrTI}"/>
+			<mx:RemoveChild target="{text2}"/>
+			<mx:RemoveChild target="{dgLiveStories}"/>
+			<mx:RemoveChild target="{text4}"/>
+			<mx:RemoveChild target="{text5}"/>
+			<mx:RemoveChild target="{photoStoryCHK}"/>
+			<mx:RemoveChild target="{imageLabel}"/>
+			<mx:RemoveChild target="{imageNameTI}"/>
+			<mx:RemoveChild target="{image}"/>
+			<mx:RemoveChild target="{imagePictureLabel}"/>
+			<mx:RemoveChild target="{textEditor}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="244.5" y="106" text="Title:" id="titleText0" fontSize="24"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="359" y="104" fontSize="24" width="648.5" id="titleTI0"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="244" y="399" text="PostDate:" fontSize="18" id="text6"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="211" y="554" text="This is a PhotoStory:" fontSize="18" id="text7"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="211" y="583" text="Image File&#x9;" fontSize="18" width="155" id="imageLabel0"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="244" y="664" text="Image:" fontSize="18" width="79" id="imagePictureLabel0" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="202" y="435" text="CompostDate:" fontSize="18" id="text8"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="244" y="361" text="This story is LIVE:" fontSize="18" id="text9"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="222" y="471" text="Date String:" fontSize="18" id="text10"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="346" y="397" id="postDateTI0" width="182" focusOut="startFocusOut(this.postDateTI0.text);"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="346" y="433" id="compostDateTI0" width="182" focusOut="endFocusOut(this.compostDateTI0.text);"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="346" y="469" id="dateStrTI0" width="182"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:CheckBox x="411" y="560" id="photoStoryCHK0" selected="{oStory.PHOTOSTORY}" click="exposePhotoURLnew();" creationComplete="this.imageNameTI0.text = 'http://www.sfarts.org/podFotos/';" />
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="346" y="585" width="661.5" id="imageNameTI0" fontSize="10" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Image x="348" y="635" width="339" id="image0" height="89" source="{imageNameTI.text}" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:CheckBox x="431" y="367" id="liveChk0" selected ="{oStory.LIVE}" change="this.sfartsService.getNumberOfLiveStories(this.podSelector.selectedItem.data);"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="536" y="375" width="510.5" id="dgLiveStories0" dataProvider="{dispItems}"  click="this.sfartsService.getSpecificStory(this.dgLiveStories0.selectedItem.id);currentState = 'editStory'">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Title" dataField="title" fontSize="10" width="60"/>
+						<mx:DataGridColumn headerText="Post" dataField="postDate" fontSize="10"  width="18"/>
+						<mx:DataGridColumn headerText="Compost" dataField="compostDate" fontSize="10" width="18" />
+						<mx:DataGridColumn headerText="Order" dataField="displayOrder" fontSize="10" width="18" />
+						<mx:DataGridColumn headerText="Live" dataField="live" width="10" fontSize="10"  
+							 editable="false" 
+						             rendererIsEditor="false" 
+						             itemRenderer="mx.controls.CheckBox" 
+						             editorDataField="selected" 
+						/>
+						<mx:DataGridColumn headerText="Pict" dataField="photoStory" width="10" fontSize="10"  
+							 editable="false" 
+						             rendererIsEditor="false" 
+						             itemRenderer="mx.controls.CheckBox" 
+						             editorDataField="selected" 
+						/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+			<mx:RichTextEditor x="244" y="151" title="Title" width="763.5" height="201" id="textEditor0" fontFamily="Arial" fontSize="14"  valueCommit="doWordCount();" >
+				</mx:RichTextEditor>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="536" y="360" text="{this.podSelector.selectedItem.label} stories in the que:" fontSize="10" fontFamily="Verdana" id="text11"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="456.5" y="10" text="ADD Stories to Pods" fontFamily="Arial" fontSize="27" id="text13"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{button3}" name="x" value="484"/>
+			<mx:SetProperty target="{button3}" name="y" value="866"/>
+			<mx:AddChild relativeTo="{podSelector}" position="before">
+				<mx:Button x="492" y="806" label="Add This Story to the Que"  id="button0"
+					 click="
+					 checkBeforeSave();
+					
+					 "/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="536" y="525" text="There are" id="thereAre" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="629" y="526" text="{oStoryCount.COUNT}" id="liveStories" width="35" height="28" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="651" y="526" text="live stories in" id="liveStoriesLabel" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{titleText0}" position="before">
+				<mx:Text x="774" y="526" text="{this.podSelector.selectedItem.label}"  id="dispLabel0" fontFamily="Verdana" fontSize="18" visible="false"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{dispLabel1}"/>
+			<mx:RemoveChild target="{liveStoriesLabel0}"/>
+			<mx:RemoveChild target="{liveStories0}"/>
+			<mx:RemoveChild target="{thereAre0}"/>
+			<mx:AddChild relativeTo="{imageLabel0}" position="before">
+				<mx:Text x="442" y="549" text="This is a fillerStory:" fontSize="18" id="text26" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{imageNameTI0}" position="before">
+				<mx:CheckBox x="631" y="557" id="fillerStoryCHK" selected="{oStory.PHOTOSTORY}" visible="false" />
+			</mx:AddChild>
+			<mx:SetProperty target="{canvas1}" name="height" value="935"/>
+			<mx:RemoveChild target="{eventIDTI}"/>
+			<mx:RemoveChild target="{text42}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="244" y="507" text="Event ID:"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextArea x="346" y="505" height="30" width="182" id="eventIDTI2"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{eventIDTI2}" position="before">
+				<mx:Text x="871.5" y="627" text="Display Order:" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="1016.5" y="625" width="50" id="displayOrder" visible="false"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{imagePictureLabel1}"/>
+			<mx:RemoveChild target="{displayOrder1}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="10" y="769" width="384" id="dgStringSearch" dataProvider="{aStringSearch}" height="129" click="this.eventIDTI2.text =  this.dgStringSearch.selectedItem.Event_Num;">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Event Name" dataField="Event_Name" width="300"/>
+						<mx:DataGridColumn headerText="ID" dataField="Event_Num" width="100"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:TextInput x="10" y="729" id="searchSting"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="202" y="732" label="Search" click="doSearch(this.searchSting.text);"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="93" y="399" label="Insert Today's Date:" click="punchInTheDate()" fontSize="10"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="1030" y="181" width="64" id="txtWordCount" fontSize="12"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="1030" y="151" label="Do Word Count" fontSize="11" click="doWordCount();"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="1027.5" y="249" fontSize="12" width="67.5" id="txtCharacterCount"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{button5}"/>
+			<mx:RemoveChild target="{txtWordCount0}"/>
+			<mx:RemoveChild target="{txtCharacterCount1}"/>
+			<mx:SetProperty target="{label1}" name="x" value="1104"/>
+			<mx:SetProperty target="{label2}" name="x" value="1104"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="309" y="732" label="Clear" click="this.searchSting.text = '';"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="1054.5" y="433" label="Refresh" fontSize="11"  click="this.sfartsService.getEditorialForDisp(this.podSelector.selectedItem.data)"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{imageLarge}" name="visible" value="false"/>
+			<mx:SetProperty target="{tiImageRoot}" name="visible" value="false"/>
+			<mx:SetProperty target="{label8}" name="visible" value="false"/>
+			<mx:SetProperty target="{imageThumb}" name="visible" value="false"/>
+		</mx:State>
+		<mx:State name="StatusReport" basedOn="editStory">
+			<mx:RemoveChild target="{titleText}"/>
+			<mx:RemoveChild target="{titleTI}"/>
+			<mx:RemoveChild target="{text48}"/>
+			<mx:RemoveChild target="{disciplineText}"/>
+			<mx:RemoveChild target="{text0}"/>
+			<mx:RemoveChild target="{liveChk}"/>
+			<mx:RemoveChild target="{dgLiveStories}"/>
+			<mx:RemoveChild target="{text4}"/>
+			<mx:RemoveChild target="{text3}"/>
+			<mx:RemoveChild target="{postDateTI}"/>
+			<mx:RemoveChild target="{compostDateTI}"/>
+			<mx:RemoveChild target="{text1}"/>
+			<mx:RemoveChild target="{text2}"/>
+			<mx:RemoveChild target="{dateStrTI}"/>
+			<mx:RemoveChild target="{thereAre0}"/>
+			<mx:RemoveChild target="{liveStories0}"/>
+			<mx:RemoveChild target="{liveStoriesLabel0}"/>
+			<mx:RemoveChild target="{text42}"/>
+			<mx:RemoveChild target="{eventIDTI}"/>
+			<mx:RemoveChild target="{text5}"/>
+			<mx:RemoveChild target="{photoStoryCHK}"/>
+			<mx:RemoveChild target="{dispLabel1}"/>
+			<mx:RemoveChild target="{imageLabel}"/>
+			<mx:RemoveChild target="{imageNameTI}"/>
+			<mx:RemoveChild target="{text49}"/>
+			<mx:RemoveChild target="{image}"/>
+			<mx:RemoveChild target="{imagePictureLabel1}"/>
+			<mx:RemoveChild target="{imagePictureLabel}"/>
+			<mx:RemoveChild target="{textEditor}"/>
+			<mx:RemoveChild target="{displayOrder1}"/>
+			<mx:RemoveChild target="{button2}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="203.5" y="112" width="893" height="534" id="dgExpiringStories" dataProvider="{aExpiringStories}">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Headline" dataField="title" width="500">
+							<mx:itemRenderer>
+							
+						
+								<mx:Component>
+									<mx:HBox>
+										<mx:Script>
+											<![CDATA[
+												override public function set data( value:Object ) : void {
+													super.data = value;
+													
+													
+													if( data.daysLeft < 10 ) setStyle("backgroundColor",0xFF0000);
+													else setStyle("backgroundColor",0xffffff);
+												}
+											]]>
+										</mx:Script>
+										<mx:Text text="{data.title}" />
+									</mx:HBox>
+									
+								</mx:Component>
+								</mx:itemRenderer>
+								</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="Disp" dataField="Discipline"/>
+						<mx:DataGridColumn headerText="Days Left" dataField="daysLeft" width="50"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:RemoveChild target="{button1}"/>
+			<mx:SetProperty target="{button3}" name="label" value="Return"/>
+			<mx:SetProperty target="{button3}" name="x" value="602.5"/>
+			<mx:SetProperty target="{button3}" name="y" value="835"/>
+			<mx:RemoveChild target="{button5}"/>
+			<mx:RemoveChild target="{label1}"/>
+			<mx:RemoveChild target="{label2}"/>
+		</mx:State>
+	</mx:states>
+
+<mx:Script>
+	<![CDATA[
+			import mx.rpc.events.ResultEvent;
+       		import mx.collections.ArrayCollection;	
+       		import flash.events.*;
+            import mx.events.*;
+            import mx.controls.Alert;
+            import components.*;
+            import mx.events.ValidationResultEvent;
+            
+            
+            private var vResult:ValidationResultEvent;
+            [Bindable]
+            public var qAllContent:ArrayCollection;
+            
+            [Bindable]
+            public var arrayMusicItems:ArrayCollection;
+             [Bindable]
+            public var arrayTheaterItems:ArrayCollection;
+             [Bindable]
+            public var arrayDanceItems:ArrayCollection;
+            [Bindable]
+            public var filmVideoItems:ArrayCollection;
+             [Bindable]
+            public var museumItems:ArrayCollection;
+            [Bindable]
+            public var galleryItems:ArrayCollection;
+            [Bindable]
+            public var familyItems:ArrayCollection;
+            [Bindable]
+            public var nightLifeItems:ArrayCollection;
+            [Bindable]
+            public var literaryItems:ArrayCollection;
+            [Bindable]
+            public var eventItems:ArrayCollection;
+            [Bindable]
+            public var festivalItems:ArrayCollection;
+            [Bindable]
+            public var oStory:Object;
+            [Bindable]
+            public var dispItems:ArrayCollection;
+            [Bindable]
+            public var podSubjects:ArrayCollection;
+            [Bindable]
+            public var oStoryCount:Object;
+            [Bindable]
+            public var aPix:ArrayCollection;
+            [Bindable]
+            public var aLive:ArrayCollection;
+            [Bindable]
+            public var aStringSearch:ArrayCollection;
+            [Bindable]
+            public var aStringSearch0:ArrayCollection;
+            [Bindable]
+            public var aExpiringStories:ArrayCollection;
+            
+           	public var daysAhead:Number = 5;
+           	
+           	public var intOffset:Number = 0;
+			
+			public var todayPush:Date = new Date();
+           
+           public var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+           
+           [Bindable]
+           public var intTotalStories:int
+           
+			public var strThumbImage:String;
+				
+			public var strLargeImage:String;
+			
+					 
+			  public function wordCountString($string:String):Number {  
+			      var tmp:Array = $string.split(" ");  
+			    for (var i:Number = tmp.length; i>0; i--) {  
+			       if (tmp[i] == '') {  
+			             tmp.splice(i,1);  
+			        }  
+			    }  
+			     return tmp.length;  
+			 } 
+			 
+			public function viewPicture():void{
+				finishImage();
+				this.image.source = this.imageNameTI.text;
+				this.imageThumb.source = this.strThumbImage;
+				this.imageLarge.source = this.strLargeImage;
+			} 
+			  	           
+           public function doWordCount():void{
+           	this.txtWordCount.text = String(wordCountString(this.textEditor0.text));
+           	this.txtCharacterCount.text = String(this.textEditor0.text.length);
+           }
+           
+           public function doWordCount1():void{
+           	this.txtWordCount0.text = String(wordCountString(this.textEditor.text));
+           	this.txtCharacterCount1.text = String(this.textEditor.text.length);
+           }
+           
+			public function punchInTheDate():void{
+				this.postDateTI0.text = dateDisplay.format(todayPush);
+			}           
+           
+           	private function handlegetExpiringStories(event:ResultEvent):void{
+           		aExpiringStories = event.result as ArrayCollection;
+           	}
+           
+            private function startFocusOut(string:String):void{
+            	this.postDateTI0.text = addTheYear(string);
+            }
+            
+            private function endFocusOut(string:String):void{
+            	this.compostDateTI0.text = addTheYear(string);
+            }
+            
+             private function editStartFocusOut(string:String):void{
+            	this.postDateTI.text = addTheYear(string);
+            }
+            
+            private function editEndFocusOut(string:String):void{
+            	this.compostDateTI.text = addTheYear(string);
+            }
+            
+            
+           public function finishImage():void{
+           	this.imageNameTI.text = this.imageNameTI.text + this.tiImageRoot.text + '.jpg';
+           	this.strThumbImage = "http://www.sfarts.org/podFotos/thumb/" + this.tiImageRoot.text + ".jpg";
+           	this.strLargeImage = "http://www.sfarts.org/podFotos/large/" + this.tiImageRoot.text + ".jpg";
+           }
+            
+           private function addTheYear(string:String):String{
+            	var pattern1:RegExp =  /\/.\//;  
+            	var pattern2:RegExp =  /\/..\//;   
+            	var returnString:String;                                                                                                                                         ;
+				
+				if 	((pattern1.test(string)== true )|| (pattern2.test(string)== true)){
+					return dateDisplay.format(string);
+				
+				}else{
+					var workstring:String = string;
+					workstring = workstring + '/11';
+					trace(workstring);
+					returnString = workstring;
+					returnString = dateDisplay.format(returnString);
+					return returnString;
+				}
+            }
+           
+           
+           private function handleGetEventsByStringSearch(event:ResultEvent):void{
+           	aStringSearch = event.result as ArrayCollection;
+           }
+           
+            private function handleGetEventsByStringSearch0(event:ResultEvent):void{
+           	aStringSearch0 = event.result as ArrayCollection;
+           }
+           
+           private function doSearch(string:String):void{
+           	this.sfartsService.getEventsBySimpleStringSearch(string);
+           }
+           
+           private function doSearch0(string:String):void{
+           	this.sfartsService.getEventsBySimpleStringSearch0(string);
+           }
+           
+            private function handleGetLiveItems(event:ResultEvent):void{
+           	
+           aLive = event.result as ArrayCollection;
+           setAlarms();
+           
+           }
+           
+           
+           private function handleGetPixItems(event:ResultEvent):void{
+           aPix = event.result as ArrayCollection;
+           
+           }
+           
+           private function exposePhotoURL():void{
+           	this.imageNameTI.visible = true;
+           	this.imageNameTI.text = 'http://www.sfarts.org/podFotos/';
+           	this.btnLoadPicture.visible = true;
+           }
+           
+            private function exposePhotoURLnew():void{
+           	this.imageNameTI0.visible = true;
+           	
+           }
+           private function setAlarms():void{
+           	
+           	trace(this.aPix.getItemAt(0).COUNT);
+           	if (int(this.aLive.getItemAt(0).COUNT) != 4){
+           		this.musicPix3.setStyle("color","Red");
+           	} else {
+           	this.musicPix3.setStyle("color","Black");
+           	}
+           	if (int(this.aPix.getItemAt(0).COUNT) != 1){
+           		this.musicPix0.setStyle("color","Red");
+           	} else {
+           	this.musicPix0.setStyle("color","Black");
+           	}
+           }
+           
+           private function getStoryCount(event:ResultEvent):void{
+           	oStoryCount = event.result;
+           }
+            
+           
+            
+            public function checkBeforeSave():void{
+            	if(this.podSelector.selectedIndex == 0){
+            		Alert.show('Must Select Pod');
+            		return;
+            	}
+            	if(this.titleTI0.text == ''){
+            		Alert.show('Must Create Title');
+            		return;
+            	}
+            	if(this.textEditor0.text == ''){
+            		Alert.show('Must Create Story Text');
+            		return;
+            	}
+            	if(this.postDateTI0.text == ''){
+            		Alert.show('Must Create Post Date');
+            		return;
+            	}
+            	if(this.compostDateTI0.text == ''){
+            		Alert.show('Must Create Compost Date');
+            		return;
+            	}
+            	if(this.compostDateTI0.text == ''){
+            		Alert.show('Must Create Compost Date');
+            		return;
+            	}
+            	createNewStory();
+            	currentState='';
+            }
+            
+            public function createNewStoryForm():void{
+            	currentState = 'createStory'
+            	this.titleTI0.text = '';
+            	this.textEditor0.text = '';
+            	this.liveChk0.selected = false;
+            	this.postDateTI0.text = '';
+            	this.compostDateTI0.text = '';
+            	this.dateStrTI0.text = '';
+            	this.eventIDTI2.text = '';
+            	this.photoStoryCHK0.selected = false;
+            	this.fillerStoryCHK.selected = false;
+            	this.imageNameTI0.text = '';
+            	this.imageLarge.source = '';
+            	this.imageThumb.source = '';
+            	
+            	this.dispItems.removeAll();
+            }
+            
+            
+            public function saveAndReturn():void{
+            	if (this.imageThumb.source == null || this.imageThumb.source == ''){
+            		Alert.show('Add the thumb image!');
+            		return;
+            	}else{
+            		this.strThumbImage = this.imageThumb.source.toString();
+            		}	
+            
+            	var comPostDate:Date = new Date(compostDateTI.text);
+					 var postDate:Date = new Date(postDateTI.text);
+					 this.sfartsService.procUpdateStory(
+					compostDateTI.text,// comPostDate,
+					dateStrTI.text,
+					oStory.DISCIPLINE,
+					imageNameTI.text,
+					liveChk.selected,
+					photoStoryCHK.selected,
+					postDateTI.text,//postDate,
+					textEditor.text,
+					titleTI.text,
+					oStory.ID,
+					int(this.eventIDTI.text),
+					int(this.displayOrder1.text),
+					this.strThumbImage,
+					this.strLargeImage
+					 );
+					 this.tiImageRoot.text = '';
+					 this.sfartsService.getEditorialContent(intOffset);
+					  this.sfartsService.getNumberOfPictStories();
+						this.sfartsService.getNumberOfLiveStories2();
+						
+					 currentState = '';
+            }
+            
+            public function createNewStory():void{
+            		var comPostDate:Date = new Date(compostDateTI0.text);
+					 var postDate:Date = new Date(postDateTI0.text);
+					 this.sfartsService.procCreateStory(
+					compostDateTI0.text,// comPostDate,
+					dateStrTI0.text,
+					this.podSelector.selectedItem.data,
+					imageNameTI0.text,
+					liveChk0.selected,
+					photoStoryCHK0.selected,
+					postDateTI0.text,//postDate,
+					textEditor0.text,
+					titleTI0.text,
+					fillerStoryCHK.selected,
+					int(this.eventIDTI2.text),
+					int(this.displayOrder.text)
+					
+					 );
+					 this.sfartsService.getEditorialForDisp(this.podSelector.selectedItem.data);
+					  this.sfartsService.getEditorialContent(intOffset);
+					  this.sfartsService.getNumberOfPictStories();
+						this.sfartsService.getNumberOfLiveStories2();
+					 
+					 currentState = '';
+            }
+            
+            public function isThisAPhotoStory():void{
+            	if (oStory.PHOTOSTORY == true){
+            		this.imageNameTI.visible = true;
+            		this.image.source = oStory.IMAGENAME;
+            	}else{
+            		this.imageNameTI.visible =false;
+            		//this.image.visible = false;
+            		this.imageLabel.visible = false;
+            		this.imagePictureLabel.visible = false;
+            	}
+            }
+            
+           public function comboBoxChange():void{
+           	this.daysAhead = int(this.cboDaysAhead.selectedItem);
+           	this.daysAhead = this.daysAhead + intOffset;
+           	this.sfartsService.getEditorialContent(intOffset);
+           }
+           
+           public function comboOffsetChange():void{
+           	this.daysAhead = int(this.cboDaysAhead.selectedItem);
+           	this.intOffset = int(this.cboOffset.selectedItem);
+           	this.daysAhead = this.daysAhead + intOffset;
+           	this.sfartsService.getEditorialContent(intOffset);
+           } 
+            public function initApp():void{
+            	this.cboDaysAhead.selectedIndex = 4;
+            	  arrayMusicItems = new ArrayCollection;
+            	arrayTheaterItems = new ArrayCollection;
+            	arrayDanceItems = new ArrayCollection;
+            	filmVideoItems = new ArrayCollection;
+            	museumItems = new ArrayCollection;
+            	galleryItems = new ArrayCollection;
+            	familyItems = new ArrayCollection;
+            	nightLifeItems = new ArrayCollection;
+            	eventItems = new ArrayCollection;
+            	literaryItems = new ArrayCollection;
+            	festivalItems = new ArrayCollection;
+            	this.sfartsService.getEditorialContent(intOffset);
+            	this.sfartsService.getPodSubjects();
+            	this.sfartsService.getNumberOfPictStories();
+				this.sfartsService.getNumberOfLiveStories2();
+				this.sfartsService.getExpiringStories();
+            }
+           
+           public function handleGetSpecificStory(event:ResultEvent):void{
+           	oStory = event.result;
+           	isThisAPhotoStory();
+           }
+           
+            public function handleGetEditorialForDisp(event:ResultEvent):void{
+            	dispItems = event.result as ArrayCollection;
+            }
+            
+            public function handleGetPodSubjects(event:ResultEvent):void{
+            	podSubjects = event.result as ArrayCollection;
+            }
+            
+            public function handleGetEditorialContent(event:ResultEvent):void{
+            	
+            	qAllContent = event.result as ArrayCollection;
+            	
+            	assignToDisciplines();
+            }
+            
+            public function addItemToArray():void{
+				var item:Object = new Object();
+				item.label = 'Select Subject Pod';
+				item.data = 0;
+				podSubjects.addItemAt(item,0);
+				this.podSelector.selectedIndex = 0;
+			}
+            public function getDaysDifference(minDate:Date, maxDate:Date):uint
+			{
+	        return  (maxDate.getTime() - minDate.getTime()) / millisecondsPerDay;
+			} 
+            
+          	public function assignToDisciplines():void{
+          		this.intTotalStories = this.qAllContent.length;
+          		arrayTheaterItems.removeAll();
+          		arrayDanceItems.removeAll();
+          		arrayMusicItems.removeAll();
+          		filmVideoItems.removeAll();
+          		museumItems.removeAll();
+          		galleryItems.removeAll();
+          		familyItems.removeAll();
+          		nightLifeItems.removeAll();
+          		eventItems.removeAll();
+          		literaryItems.removeAll();
+          		festivalItems.removeAll();
+          		for( var i:String in qAllContent){
+          			switch (qAllContent.getItemAt(int(i)).discipline){
+          				case 1:
+          				
+						var today:Date = new Date();	
+						today.setTime(today.getTime() + millisecondsPerDay * this.intOffset);
+						var deadDate:Date = new Date(qAllContent.getItemAt(int(i)).compostDate);
+						var daysLeft:int = getDaysDifference(today,deadDate);
+						
+          				arrayTheaterItems.addItem({dispString:qAllContent.getItemAt(int(i)).dispString,
+          				event:qAllContent.getItemAt(int(i)).event,
+          				photoStory:qAllContent.getItemAt(int(i)).photoStory,
+          				storyText:qAllContent.getItemAt(int(i)).storyText,
+          				imageName:qAllContent.getItemAt(int(i)).imageName,
+          				dateString:qAllContent.getItemAt(int(i)).dateString,
+          				discipline:qAllContent.getItemAt(int(i)).discipline,
+          				id:qAllContent.getItemAt(int(i)).id,
+          				title:qAllContent.getItemAt(int(i)).title,
+          				live:qAllContent.getItemAt(int(i)).live,
+          				fillerStory:qAllContent.getItemAt(int(i)).fillerStory,
+          				displayOrder:qAllContent.getItemAt(int(i)).displayOrder,
+          				compostDate:qAllContent.getItemAt(int(i)).compostDate,
+          				insertDate:qAllContent.getItemAt(int(i)).insertDate,
+          				lifeSpan:daysLeft,
+          				postDate:qAllContent.getItemAt(int(i)).postDate
+          				});
+          				
+          				break;
+          				
+          					case 2:
+          				
+						var today2:Date = new Date();	
+						today2.setTime(today2.getTime() + millisecondsPerDay * this.intOffset);
+						var deadDate2:Date = new Date(qAllContent.getItemAt(int(i)).compostDate);
+          				var daysLeft2:int = getDaysDifference(today2,deadDate2);
+          				arrayDanceItems.addItem({dispString:qAllContent.getItemAt(int(i)).dispString,
+          				event:qAllContent.getItemAt(int(i)).event,
+          				photoStory:qAllContent.getItemAt(int(i)).photoStory,
+          				storyText:qAllContent.getItemAt(int(i)).storyText,
+          				imageName:qAllContent.getItemAt(int(i)).imageName,
+          				dateString:qAllContent.getItemAt(int(i)).dateString,
+          				discipline:qAllContent.getItemAt(int(i)).discipline,
+          				id:qAllContent.getItemAt(int(i)).id,
+          				title:qAllContent.getItemAt(int(i)).title,
+          				live:qAllContent.getItemAt(int(i)).live,
+          				fillerStory:qAllContent.getItemAt(int(i)).fillerStory,
+          				displayOrder:qAllContent.getItemAt(int(i)).displayOrder,
+          				compostDate:qAllContent.getItemAt(int(i)).compostDate,
+          				insertDate:qAllContent.getItemAt(int(i)).insertDate,
+          				lifeSpan:daysLeft2,
+          				postDate:qAllContent.getItemAt(int(i)).postDate
+          				});
+          				//trace(arrayDanceItems.getItemAt(int(0)).storyText);
+          				break;
+          				
+          				case 3:
+          				
+						var today3:Date = new Date();	
+						today3.setTime(today3.getTime() + (millisecondsPerDay * this.intOffset));
+						var deadDate3:Date = new Date(qAllContent.getItemAt(int(i)).compostDate);
+          				var daysLeft3:int = getDaysDifference(today3,deadDate3);
+          				
+          				arrayMusicItems.addItem({dispString:qAllContent.getItemAt(int(i)).dispString,
+          				event:qAllContent.getItemAt(int(i)).event,
+          				photoStory:qAllContent.getItemAt(int(i)).photoStory,
+          				storyText:qAllContent.getItemAt(int(i)).storyText,
+          				imageName:qAllContent.getItemAt(int(i)).imageName,
+          				dateString:qAllContent.getItemAt(int(i)).dateString,
+          				discipline:qAllContent.getItemAt(int(i)).discipline,
+          				id:qAllContent.getItemAt(int(i)).id,
+          				title:qAllContent.getItemAt(int(i)).title,
+          				live:qAllContent.getItemAt(int(i)).live,
+          				fillerStory:qAllContent.getItemAt(int(i)).fillerStory,
+          				displayOrder:qAllContent.getItemAt(int(i)).displayOrder,
+          				compostDate:qAllContent.getItemAt(int(i)).compostDate,
+          				insertDate:qAllContent.getItemAt(int(i)).insertDate,
+          				lifeSpan:daysLeft3,
+          				postDate:qAllContent.getItemAt(int(i)).postDate
+          				});
+          				//trace(arrayMusicItems.getItemAt(int(0)).live);
+          				break;
+          				
+          				case 4:
+          				
+						var today4:Date = new Date();	
+						today4.setTime(today4.getTime() + millisecondsPerDay * this.intOffset);
+						var deadDate4:Date = new Date(qAllContent.getItemAt(int(i)).compostDate);
+          				var daysLeft4:int = getDaysDifference(today4,deadDate4);
+          				
+          				literaryItems.addItem({dispString:qAllContent.getItemAt(int(i)).dispString,
+          				event:qAllContent.getItemAt(int(i)).event,
+          				photoStory:qAllContent.getItemAt(int(i)).photoStory,
+          				storyText:qAllContent.getItemAt(int(i)).storyText,
+          				imageName:qAllContent.getItemAt(int(i)).imageName,
+          				dateString:qAllContent.getItemAt(int(i)).dateString,
+          				discipline:qAllContent.getItemAt(int(i)).discipline,
+          				id:qAllContent.getItemAt(int(i)).id,
+          				title:qAllContent.getItemAt(int(i)).title,
+          				live:qAllContent.getItemAt(int(i)).live,
+          				fillerStory:qAllContent.getItemAt(int(i)).fillerStory,
+          				displayOrder:qAllContent.getItemAt(int(i)).displayOrder,
+          				compostDate:qAllContent.getItemAt(int(i)).compostDate,
+          				insertDate:qAllContent.getItemAt(int(i)).insertDate,
+          				lifeSpan:daysLeft4,
+          				postDate:qAllContent.getItemAt(int(i)).postDate
+          				});
+          				//trace(arrayMusicItems.getItemAt(int(0)).live);
+          				break;
+          				
+          				case 5:
+          				
+						var today5:Date = new Date();	
+						today5.setTime(today5.getTime() + millisecondsPerDay * this.intOffset);
+						var deadDate5:Date = new Date(qAllContent.getItemAt(int(i)).compostDate);
+          				var daysLeft5:int = getDaysDifference(today5,deadDate5);
+          				
+          				festivalItems.addItem({dispString:qAllContent.getItemAt(int(i)).dispString,
+          				event:qAllContent.getItemAt(int(i)).event,
+          				photoStory:qAllContent.getItemAt(int(i)).photoStory,
+          				storyText:qAllContent.getItemAt(int(i)).storyText,
+          				imageName:qAllContent.getItemAt(int(i)).imageName,
+          				dateString:qAllContent.getItemAt(int(i)).dateString,
+          				discipline:qAllContent.getItemAt(int(i)).discipline,
+          				id:qAllContent.getItemAt(int(i)).id,
+          				title:qAllContent.getItemAt(int(i)).title,
+          				live:qAllContent.getItemAt(int(i)).live,
+          				fillerStory:qAllContent.getItemAt(int(i)).fillerStory,
+          				displayOrder:qAllContent.getItemAt(int(i)).displayOrder,
+          				compostDate:qAllContent.getItemAt(int(i)).compostDate,
+          				insertDate:qAllContent.getItemAt(int(i)).insertDate,
+          				lifeSpan:daysLeft5,
+          				postDate:qAllContent.getItemAt(int(i)).postDate
+          				});
+          				//trace(arrayMusicItems.getItemAt(int(0)).live);
+          				break;
+          			
+          			case 6:
+          			
+						var today6:Date = new Date();	
+						today6.setTime(today6.getTime() + millisecondsPerDay * this.intOffset);
+						var deadDate6:Date = new Date(qAllContent.getItemAt(int(i)).compostDate);
+          				var daysLeft6:int = getDaysDifference(today6,deadDate6);
+          				
+          				filmVideoItems.addItem({dispString:qAllContent.getItemAt(int(i)).dispString,
+          				event:qAllContent.getItemAt(int(i)).event,
+          				photoStory:qAllContent.getItemAt(int(i)).photoStory,
+          				storyText:qAllContent.getItemAt(int(i)).storyText,
+          				imageName:qAllContent.getItemAt(int(i)).imageName,
+          				dateString:qAllContent.getItemAt(int(i)).dateString,
+          				discipline:qAllContent.getItemAt(int(i)).discipline,
+          				id:qAllContent.getItemAt(int(i)).id,
+          				title:qAllContent.getItemAt(int(i)).title,
+          				live:qAllContent.getItemAt(int(i)).live,
+          				fillerStory:qAllContent.getItemAt(int(i)).fillerStory,
+          				displayOrder:qAllContent.getItemAt(int(i)).displayOrder,
+          				compostDate:qAllContent.getItemAt(int(i)).compostDate,
+          				insertDate:qAllContent.getItemAt(int(i)).insertDate,
+          				lifeSpan:daysLeft6,
+          				postDate:qAllContent.getItemAt(int(i)).postDate
+          				});
+          				//trace(filmVideoItems.getItemAt(int(0)).storyText);
+          				break;
+          			
+          			
+          			case 7:
+          			
+						var today7:Date = new Date();	
+						today.setTime(today7.getTime() + millisecondsPerDay * this.intOffset);
+						var deadDate7:Date = new Date(qAllContent.getItemAt(int(i)).compostDate);
+          				var daysLeft7:int = getDaysDifference(today7,deadDate7);
+          				
+          				museumItems.addItem({dispString:qAllContent.getItemAt(int(i)).dispString,
+          				event:qAllContent.getItemAt(int(i)).event,
+          				photoStory:qAllContent.getItemAt(int(i)).photoStory,
+          				storyText:qAllContent.getItemAt(int(i)).storyText,
+          				imageName:qAllContent.getItemAt(int(i)).imageName,
+          				dateString:qAllContent.getItemAt(int(i)).dateString,
+          				discipline:qAllContent.getItemAt(int(i)).discipline,
+          				id:qAllContent.getItemAt(int(i)).id,
+          				title:qAllContent.getItemAt(int(i)).title,
+          				live:qAllContent.getItemAt(int(i)).live,
+          				fillerStory:qAllContent.getItemAt(int(i)).fillerStory,
+          				displayOrder:qAllContent.getItemAt(int(i)).displayOrder,
+          				compostDate:qAllContent.getItemAt(int(i)).compostDate,
+          				insertDate:qAllContent.getItemAt(int(i)).insertDate,
+          				lifeSpan:daysLeft7,
+          				postDate:qAllContent.getItemAt(int(i)).postDate
+          				});
+          				//trace(museumItems.getItemAt(int(0)).storyText);
+          				break;
+          			
+          			case 8:
+          			
+						var today8:Date = new Date();	
+						today8.setTime(today8.getTime() + millisecondsPerDay * this.intOffset);
+						var deadDate8:Date = new Date(qAllContent.getItemAt(int(i)).compostDate);
+          				var daysLeft8:int = getDaysDifference(today8,deadDate8);
+          				
+          				galleryItems.addItem({dispString:qAllContent.getItemAt(int(i)).dispString,
+          				event:qAllContent.getItemAt(int(i)).event,
+          				photoStory:qAllContent.getItemAt(int(i)).photoStory,
+          				storyText:qAllContent.getItemAt(int(i)).storyText,
+          				imageName:qAllContent.getItemAt(int(i)).imageName,
+          				dateString:qAllContent.getItemAt(int(i)).dateString,
+          				discipline:qAllContent.getItemAt(int(i)).discipline,
+          				id:qAllContent.getItemAt(int(i)).id,
+          				title:qAllContent.getItemAt(int(i)).title,
+          				live:qAllContent.getItemAt(int(i)).live,
+          				fillerStory:qAllContent.getItemAt(int(i)).fillerStory,
+          				displayOrder:qAllContent.getItemAt(int(i)).displayOrder,
+          				compostDate:qAllContent.getItemAt(int(i)).compostDate,
+          				insertDate:qAllContent.getItemAt(int(i)).insertDate,
+          				lifeSpan:daysLeft8,
+          				postDate:qAllContent.getItemAt(int(i)).postDate
+          				});
+          				//trace(galleryItems.getItemAt(int(0)).storyText);
+          				break;
+          				
+          				
+          				case 9:
+          				
+						var today9:Date = new Date();	
+						today9.setTime(today9.getTime() + millisecondsPerDay * this.intOffset);
+						var deadDate9:Date = new Date(qAllContent.getItemAt(int(i)).compostDate);
+          				var daysLeft9:int = getDaysDifference(today9,deadDate9);
+          				
+          				familyItems.addItem({dispString:qAllContent.getItemAt(int(i)).dispString,
+          				event:qAllContent.getItemAt(int(i)).event,
+          				photoStory:qAllContent.getItemAt(int(i)).photoStory,
+          				storyText:qAllContent.getItemAt(int(i)).storyText,
+          				imageName:qAllContent.getItemAt(int(i)).imageName,
+          				dateString:qAllContent.getItemAt(int(i)).dateString,
+          				discipline:qAllContent.getItemAt(int(i)).discipline,
+          				id:qAllContent.getItemAt(int(i)).id,
+          				title:qAllContent.getItemAt(int(i)).title,
+          				live:qAllContent.getItemAt(int(i)).live,
+          				fillerStory:qAllContent.getItemAt(int(i)).fillerStory,
+          				displayOrder:qAllContent.getItemAt(int(i)).displayOrder,
+          				compostDate:qAllContent.getItemAt(int(i)).compostDate,
+          				insertDate:qAllContent.getItemAt(int(i)).insertDate,
+          				lifeSpan:daysLeft9,
+          				postDate:qAllContent.getItemAt(int(i)).postDate
+          				});
+          				//trace(familyItems.getItemAt(int(0)).storyText);
+          				break;
+          			case 12:
+          				
+						var today12:Date = new Date();	
+						today12.setTime(today12.getTime() + millisecondsPerDay * this.intOffset);
+						var deadDate12:Date = new Date(qAllContent.getItemAt(int(i)).compostDate);
+          				var daysLeft12:int = getDaysDifference(today12,deadDate12);
+          				
+          				nightLifeItems.addItem({dispString:qAllContent.getItemAt(int(i)).dispString,
+          				event:qAllContent.getItemAt(int(i)).event,
+          				photoStory:qAllContent.getItemAt(int(i)).photoStory,
+          				storyText:qAllContent.getItemAt(int(i)).storyText,
+          				imageName:qAllContent.getItemAt(int(i)).imageName,
+          				dateString:qAllContent.getItemAt(int(i)).dateString,
+          				discipline:qAllContent.getItemAt(int(i)).discipline,
+          				id:qAllContent.getItemAt(int(i)).id,
+          				title:qAllContent.getItemAt(int(i)).title,
+          				live:qAllContent.getItemAt(int(i)).live,
+          				fillerStory:qAllContent.getItemAt(int(i)).fillerStory,
+          				displayOrder:qAllContent.getItemAt(int(i)).displayOrder,
+          				compostDate:qAllContent.getItemAt(int(i)).compostDate,
+          				insertDate:qAllContent.getItemAt(int(i)).insertDate,
+          				lifeSpan:daysLeft12,
+          				postDate:qAllContent.getItemAt(int(i)).postDate
+          				});
+          				//trace(webItems.getItemAt(int(0)).storyText);
+          				break;
+          			
+          				case 10:
+          				var today10:Date = new Date();	
+						today10.setTime(today10.getTime() + millisecondsPerDay * this.intOffset);
+						var deadDate10:Date = new Date(qAllContent.getItemAt(int(i)).compostDate);
+          				var daysLeft10:int = getDaysDifference(today10,deadDate10);
+          				
+          				
+          				eventItems.addItem({dispString:qAllContent.getItemAt(int(i)).dispString,
+          				event:qAllContent.getItemAt(int(i)).event,
+          				photoStory:qAllContent.getItemAt(int(i)).photoStory,
+          				storyText:qAllContent.getItemAt(int(i)).storyText,
+          				imageName:qAllContent.getItemAt(int(i)).imageName,
+          				dateString:qAllContent.getItemAt(int(i)).dateString,
+          				discipline:qAllContent.getItemAt(int(i)).discipline,
+          				id:qAllContent.getItemAt(int(i)).id,
+          				title:qAllContent.getItemAt(int(i)).title,
+          				live:qAllContent.getItemAt(int(i)).live,
+          				fillerStory:qAllContent.getItemAt(int(i)).fillerStory,
+          				displayOrder:qAllContent.getItemAt(int(i)).displayOrder,
+          				compostDate:qAllContent.getItemAt(int(i)).compostDate,
+          				insertDate:qAllContent.getItemAt(int(i)).insertDate,
+          				lifeSpan:daysLeft10,
+          				postDate:qAllContent.getItemAt(int(i)).postDate
+          				});
+          				//trace(webItems.getItemAt(int(0)).storyText);
+          				break;
+          			
+          			}
+          			
+          			
+          			
+          			
+          		}
+          		
+          	}
+	]]>
+</mx:Script>
+ 
+
+	<mx:Canvas x="0" y="0" width="1300" height="1388" borderColor="#F2F6F9" backgroundColor="#FFFFFF" id="canvas1">
+		<mx:DataGrid x="15" y="36" height="166" id="dgMusic" dataProvider="{arrayMusicItems}" width="611" editable="false" doubleClickEnabled="true"
+			 click="
+			 this.sfartsService.getSpecificStory(this.dgMusic.selectedItem.id);
+			 this.sfartsService.getEditorialForDisp(this.dgMusic.selectedItem.discipline);
+			 this.sfartsService.getNumberOfLiveStories(this.dgMusic.selectedItem.discipline);
+			 currentState='editStory';
+			 ">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Headline" dataField="title" width="200" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+											var today:Date = new Date();
+											//today = today + millisecondsPerDay * 5;
+											today.setTime(today.getTime() + millisecondsPerDay * outerDocument.daysAhead);
+											var deadDate:Date = new Date(data.compostDate);
+											var postDate:Date = new Date(data.postDate);
+											
+											if( deadDate < today ) setStyle("backgroundColor",0xFF0000);
+											else if (postDate > today ) setStyle("backgroundColor",0xCCCCCC);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.title}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>	
+					
+					
+					
+					
+
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Days Left" dataField="lifeSpan" width="55" />
+				<mx:DataGridColumn headerText="JPG" dataField="photoStory" width="30"
+					editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected"
+					/>
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  
+				 editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected" 
+					/>
+					<mx:DataGridColumn headerText="Dates" dataField="dateString" width="100"  />
+				<!---
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  id="two"
+				 editable="true" 
+                rendererIsEditor="true" 
+                itemRenderer="components.radioTest" 
+                editorDataField="newLive" 
+					/>
+				-->	
+				<mx:DataGridColumn headerText="DSP" dataField="displayOrder" width="30"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:Button x="1057" y="0" label="Add A New Story" fontFamily="Arial" fontSize="20" click="createNewStoryForm();" id="button1"/>
+		<mx:Text x="200" y="203" text="{aPix.getItemAt(2).COUNT}" id="musicPix" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:DataGrid x="636" y="35" height="166" id="dgTheater" dataProvider="{arrayTheaterItems}" width="611" editable="false" doubleClickEnabled="true"
+			 click="
+			 this.sfartsService.getSpecificStory(this.dgTheater.selectedItem.id);
+			 this.sfartsService.getEditorialForDisp(this.dgTheater.selectedItem.discipline);
+			 this.sfartsService.getNumberOfLiveStories(this.dgTheater.selectedItem.discipline);
+			 currentState='editStory';
+			 ">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Headline" dataField="title" width="200" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+											var today:Date = new Date();
+											//today = today + millisecondsPerDay * 5;
+											today.setTime(today.getTime() + millisecondsPerDay * outerDocument.daysAhead);
+											var deadDate:Date = new Date(data.compostDate);
+											var postDate:Date = new Date(data.postDate);
+											
+											if( deadDate < today ) setStyle("backgroundColor",0xFF0000);
+											else if (postDate > today ) setStyle("backgroundColor",0xCCCCCC);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.title}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>	
+					
+					
+					
+					
+
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Days Left" dataField="lifeSpan" width="55" />
+				<mx:DataGridColumn headerText="JPG" dataField="photoStory" width="30"
+					editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected"
+					/>
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  
+				 editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected" 
+					/>
+					<mx:DataGridColumn headerText="Dates" dataField="dateString" width="100"  />
+				<!---
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  id="two"
+				 editable="true" 
+                rendererIsEditor="true" 
+                itemRenderer="components.radioTest" 
+                editorDataField="newLive" 
+					/>
+				-->	
+				<mx:DataGridColumn headerText="DSP" dataField="displayOrder" width="30"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:Text x="804" y="205" text="{aPix.getItemAt(0).COUNT}" id="musicPix0" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:DataGrid x="15" y="269" height="166" id="dgDance" dataProvider="{arrayDanceItems}" width="611" editable="false" doubleClickEnabled="true"
+			 click="
+			 this.sfartsService.getSpecificStory(this.dgDance.selectedItem.id);
+			 this.sfartsService.getEditorialForDisp(this.dgDance.selectedItem.discipline);
+			 this.sfartsService.getNumberOfLiveStories(this.dgDance.selectedItem.discipline);
+			 currentState='editStory';
+			 ">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Headline" dataField="title" width="200" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+											var today:Date = new Date();
+											//today = today + millisecondsPerDay * 5;
+											today.setTime(today.getTime() + millisecondsPerDay * outerDocument.daysAhead);
+											var deadDate:Date = new Date(data.compostDate);
+											var postDate:Date = new Date(data.postDate);
+											
+											if( deadDate < today ) setStyle("backgroundColor",0xFF0000);
+											else if (postDate > today ) setStyle("backgroundColor",0xCCCCCC);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.title}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>	
+					
+					
+					
+					
+
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Days Left" dataField="lifeSpan" width="55" />
+				<mx:DataGridColumn headerText="JPG" dataField="photoStory" width="30"
+					editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected"
+					/>
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  
+				 editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected" 
+					/>
+					<mx:DataGridColumn headerText="Dates" dataField="dateString" width="100"  />
+				<!---
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  id="two"
+				 editable="true" 
+                rendererIsEditor="true" 
+                itemRenderer="components.radioTest" 
+                editorDataField="newLive" 
+					/>
+				-->	
+				<mx:DataGridColumn headerText="DSP" dataField="displayOrder" width="30"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:Text x="183" y="443" text="{aPix.getItemAt(1).COUNT}" id="musicPix1" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="15" y="444" text="Number of Picture Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text16"/>
+		<mx:Text x="636" y="206" text="Number of Picture Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text14"/>
+		<mx:Text x="15" y="203" text="Number of Picture Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text15"/>
+		<mx:Text x="200" y="224" text="{aLive.getItemAt(2).COUNT}" id="musicPix2" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="15" y="224" text="Number of Live Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text17"/>
+		<mx:Text x="804" y="222" text="{aLive.getItemAt(0).COUNT}" id="musicPix3" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="636" y="223" text="Number of Live Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text18"/>
+		<mx:Text x="842" y="207" fontFamily="Verdana" fontSize="12" width="177" id="text50" text="Total number of Stories:"/>
+		<mx:Text x="260" y="205" fontFamily="Verdana" fontSize="12" width="177" id="text51" text="Total number of Stories:"/>
+		<mx:Text x="183" y="461" text="{aLive.getItemAt(1).COUNT}" id="musicPix4" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="15" y="462" text="Number of Live Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text19"/>
+		<mx:DataGrid x="636" y="269" height="166" id="dgVideo" dataProvider="{filmVideoItems}" width="611" editable="false" doubleClickEnabled="true"
+			 click="
+			 this.sfartsService.getSpecificStory(this.dgVideo.selectedItem.id);
+			 this.sfartsService.getEditorialForDisp(this.dgVideo.selectedItem.discipline);
+			 this.sfartsService.getNumberOfLiveStories(this.dgVideo.selectedItem.discipline);
+			 currentState='editStory';
+			 ">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Headline" dataField="title" width="200" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+											var today:Date = new Date();
+											//today = today + millisecondsPerDay * 5;
+											today.setTime(today.getTime() + millisecondsPerDay * outerDocument.daysAhead);
+											var deadDate:Date = new Date(data.compostDate);
+											var postDate:Date = new Date(data.postDate);
+											
+											if( deadDate < today ) setStyle("backgroundColor",0xFF0000);
+											else if (postDate > today ) setStyle("backgroundColor",0xCCCCCC);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.title}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>	
+					
+					
+					
+					
+
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Days Left" dataField="lifeSpan" width="55" />
+				<mx:DataGridColumn headerText="JPG" dataField="photoStory" width="30"
+					editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected"
+					/>
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  
+				 editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected" 
+					/>
+					<mx:DataGridColumn headerText="Dates" dataField="dateString" width="100"  />
+				<!---
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  id="two"
+				 editable="true" 
+                rendererIsEditor="true" 
+                itemRenderer="components.radioTest" 
+                editorDataField="newLive" 
+					/>
+				-->	
+				<mx:DataGridColumn headerText="DSP" dataField="displayOrder" width="30"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:DataGrid x="5" y="502" height="166" id="dgVideo0" dataProvider="{museumItems}" width="611" editable="false" doubleClickEnabled="true"
+			 click="
+			 this.sfartsService.getSpecificStory(this.dgVideo0.selectedItem.id);
+			 this.sfartsService.getEditorialForDisp(this.dgVideo0.selectedItem.discipline);
+			 this.sfartsService.getNumberOfLiveStories(this.dgVideo0.selectedItem.discipline);
+			 currentState='editStory';
+			 ">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Headline" dataField="title" width="200" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+											var today:Date = new Date();
+											//today = today + millisecondsPerDay * 5;
+											today.setTime(today.getTime() + millisecondsPerDay * outerDocument.daysAhead);
+											var deadDate:Date = new Date(data.compostDate);
+											var postDate:Date = new Date(data.postDate);
+											
+											if( deadDate < today ) setStyle("backgroundColor",0xFF0000);
+											else if (postDate > today ) setStyle("backgroundColor",0xCCCCCC);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.title}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>	
+					
+					
+					
+					
+
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Days Left" dataField="lifeSpan" width="55" />
+				<mx:DataGridColumn headerText="JPG" dataField="photoStory" width="30"
+					editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected"
+					/>
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  
+				 editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected" 
+					/>
+					<mx:DataGridColumn headerText="Dates" dataField="dateString" width="100"  />
+				<!---
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  id="two"
+				 editable="true" 
+                rendererIsEditor="true" 
+                itemRenderer="components.radioTest" 
+                editorDataField="newLive" 
+					/>
+				-->	
+				<mx:DataGridColumn headerText="DSP" dataField="displayOrder" width="30"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:DataGrid x="636" y="502" height="166" id="dgVideo1" dataProvider="{galleryItems}" width="611" editable="false" doubleClickEnabled="true"
+			 click="
+			 this.sfartsService.getSpecificStory(this.dgVideo1.selectedItem.id);
+			 this.sfartsService.getEditorialForDisp(this.dgVideo1.selectedItem.discipline);
+			 this.sfartsService.getNumberOfLiveStories(this.dgVideo1.selectedItem.discipline);
+			 currentState='editStory';
+			 ">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Headline" dataField="title" width="200" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+											var today:Date = new Date();
+											//today = today + millisecondsPerDay * 5;
+											today.setTime(today.getTime() + millisecondsPerDay * outerDocument.daysAhead);
+											var deadDate:Date = new Date(data.compostDate);
+											var postDate:Date = new Date(data.postDate);
+											
+											if( deadDate < today ) setStyle("backgroundColor",0xFF0000);
+											else if (postDate > today ) setStyle("backgroundColor",0xCCCCCC);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.title}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>	
+					
+					
+					
+					
+
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Days Left" dataField="lifeSpan" width="55" />
+				<mx:DataGridColumn headerText="JPG" dataField="photoStory" width="30"
+					editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected"
+					/>
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  
+				 editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected" 
+					/>
+					<mx:DataGridColumn headerText="Dates" dataField="dateString" width="100"  />
+				<!---
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  id="two"
+				 editable="true" 
+                rendererIsEditor="true" 
+                itemRenderer="components.radioTest" 
+                editorDataField="newLive" 
+					/>
+				-->	
+				<mx:DataGridColumn headerText="DSP" dataField="displayOrder" width="30"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:Text x="804" y="666" text="{aPix.getItemAt(7).COUNT}" id="musicPix9" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="636" y="667" text="Number of Picture Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text30"/>
+		<mx:Text x="804" y="681" text="{aLive.getItemAt(7).COUNT}" id="musicPix10" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="636" y="682" text="Number of Live Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text31"/>
+		<mx:Text x="636" y="483" text="Galleries" fontFamily="Verdana" fontSize="16" id="text32"/>
+		<mx:DataGrid x="15" y="715" height="166" id="dgVideo2" dataProvider="{familyItems}" width="611" editable="false" doubleClickEnabled="true"
+			 click="
+			 this.sfartsService.getSpecificStory(this.dgVideo2.selectedItem.id);
+			 this.sfartsService.getEditorialForDisp(this.dgVideo2.selectedItem.discipline);
+			 this.sfartsService.getNumberOfLiveStories(this.dgVideo2.selectedItem.discipline);
+			 currentState='editStory';
+			 ">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Headline" dataField="title" width="200" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+											var today:Date = new Date();
+											//today = today + millisecondsPerDay * 5;
+											today.setTime(today.getTime() + millisecondsPerDay * outerDocument.daysAhead);
+											var deadDate:Date = new Date(data.compostDate);
+											var postDate:Date = new Date(data.postDate);
+											
+											if( deadDate < today ) setStyle("backgroundColor",0xFF0000);
+											else if (postDate > today ) setStyle("backgroundColor",0xCCCCCC);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.title}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>	
+					
+					
+					
+					
+
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Days Left" dataField="lifeSpan" width="55" />
+				<mx:DataGridColumn headerText="JPG" dataField="photoStory" width="30"
+					editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected"
+					/>
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  
+				 editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected" 
+					/>
+					<mx:DataGridColumn headerText="Dates" dataField="dateString" width="100"  />
+				<!---
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  id="two"
+				 editable="true" 
+                rendererIsEditor="true" 
+                itemRenderer="components.radioTest" 
+                editorDataField="newLive" 
+					/>
+				-->	
+				<mx:DataGridColumn headerText="DSP" dataField="displayOrder" width="30"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:Text x="183" y="879" text="{aPix.getItemAt(8).COUNT}" id="musicPix11" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="15" y="880" text="Number of Picture Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text33"/>
+		<mx:Text x="183" y="896" text="{aLive.getItemAt(8).COUNT}" id="musicPix12" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="15" y="898" text="Number of Live Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text34"/>
+		<mx:Text x="15" y="696" text="Children" fontFamily="Verdana" fontSize="16" id="text35"/>
+		<mx:DataGrid x="634" y="715" height="166" id="dgVideo3" dataProvider="{nightLifeItems}" width="611" editable="false" doubleClickEnabled="true"
+			 click="
+			 this.sfartsService.getSpecificStory(this.dgVideo3.selectedItem.id);
+			 this.sfartsService.getEditorialForDisp(this.dgVideo3.selectedItem.discipline);
+			 this.sfartsService.getNumberOfLiveStories(this.dgVideo3.selectedItem.discipline);
+			 currentState='editStory';
+			 ">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Headline" dataField="title" width="200" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+											var today:Date = new Date();
+											//today = today + millisecondsPerDay * 5;
+											today.setTime(today.getTime() + millisecondsPerDay * outerDocument.daysAhead);
+											var deadDate:Date = new Date(data.compostDate);
+											var postDate:Date = new Date(data.postDate);
+											
+											if( deadDate < today ) setStyle("backgroundColor",0xFF0000);
+											else if (postDate > today ) setStyle("backgroundColor",0xCCCCCC);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.title}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>	
+					
+					
+					
+					
+
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Days Left" dataField="lifeSpan" width="55" />
+				<mx:DataGridColumn headerText="JPG" dataField="photoStory" width="30"
+					editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected"
+					/>
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  
+				 editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected" 
+					/>
+					<mx:DataGridColumn headerText="Dates" dataField="dateString" width="100"  />
+				<!---
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  id="two"
+				 editable="true" 
+                rendererIsEditor="true" 
+                itemRenderer="components.radioTest" 
+                editorDataField="newLive" 
+					/>
+				-->	
+				<mx:DataGridColumn headerText="DSP" dataField="displayOrder" width="30"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:DataGrid x="634" y="935" height="166" id="dgLiterary" dataProvider="{literaryItems}" width="611" editable="false" doubleClickEnabled="true"
+			 click="
+			 this.sfartsService.getSpecificStory(this.dgLiterary.selectedItem.id);
+			 this.sfartsService.getEditorialForDisp(this.dgLiterary.selectedItem.discipline);
+			 this.sfartsService.getNumberOfLiveStories(this.dgLiterary.selectedItem.discipline);
+			 currentState='editStory';
+			 ">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Headline" dataField="title" width="200" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+											var today:Date = new Date();
+											//today = today + millisecondsPerDay * 5;
+											today.setTime(today.getTime() + millisecondsPerDay * outerDocument.daysAhead);
+											var deadDate:Date = new Date(data.compostDate);
+											var postDate:Date = new Date(data.postDate);
+											
+											if( deadDate < today ) setStyle("backgroundColor",0xFF0000);
+											else if (postDate > today ) setStyle("backgroundColor",0xCCCCCC);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.title}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>	
+					
+					
+					
+					
+
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Days Left" dataField="lifeSpan" width="55" />
+				<mx:DataGridColumn headerText="JPG" dataField="photoStory" width="30"
+					editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected"
+					/>
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  
+				 editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected" 
+					/>
+					<mx:DataGridColumn headerText="Dates" dataField="dateString" width="100"  />
+				<!---
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  id="two"
+				 editable="true" 
+                rendererIsEditor="true" 
+                itemRenderer="components.radioTest" 
+                editorDataField="newLive" 
+					/>
+				-->	
+				<mx:DataGridColumn headerText="DSP" dataField="displayOrder" width="30"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:Text x="802" y="879" text="{aPix.getItemAt(10).COUNT}" id="musicPix13" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="634" y="880" text="Number of Picture Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text36"/>
+		<mx:Text x="802" y="896" text="{aLive.getItemAt(10).COUNT}" id="musicPix14" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:DataGrid x="15" y="933" height="166" id="dgEvents" dataProvider="{eventItems}" width="611" editable="false" doubleClickEnabled="true"
+			 click="
+			 this.sfartsService.getSpecificStory(this.dgEvents.selectedItem.id);
+			 this.sfartsService.getEditorialForDisp(this.dgEvents.selectedItem.discipline);
+			 this.sfartsService.getNumberOfLiveStories(this.dgEvents.selectedItem.discipline);
+			 currentState='editStory';
+			 ">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Headline" dataField="title" width="200" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+											var today:Date = new Date();
+											//today = today + millisecondsPerDay * 5;
+											today.setTime(today.getTime() + millisecondsPerDay * outerDocument.daysAhead);
+											var deadDate:Date = new Date(data.compostDate);
+											var postDate:Date = new Date(data.postDate);
+											
+											if( deadDate < today ) setStyle("backgroundColor",0xFF0000);
+											else if (postDate > today ) setStyle("backgroundColor",0xCCCCCC);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.title}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>	
+					
+					
+					
+					
+
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Days Left" dataField="lifeSpan" width="55" />
+				<mx:DataGridColumn headerText="JPG" dataField="photoStory" width="30"
+					editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected"
+					/>
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  
+				 editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected" 
+					/>
+					<mx:DataGridColumn headerText="Dates" dataField="dateString" width="100"  />
+				<!---
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  id="two"
+				 editable="true" 
+                rendererIsEditor="true" 
+                itemRenderer="components.radioTest" 
+                editorDataField="newLive" 
+					/>
+				-->	
+				<mx:DataGridColumn headerText="DSP" dataField="displayOrder" width="30"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:DataGrid x="15" y="1159" height="166" id="dgFestivals" dataProvider="{festivalItems}" width="611" editable="false" doubleClickEnabled="true"
+			 click="
+			 this.sfartsService.getSpecificStory(this.dgFestivals.selectedItem.id);
+			 this.sfartsService.getEditorialForDisp(this.dgFestivals.selectedItem.discipline);
+			 this.sfartsService.getNumberOfLiveStories(this.dgFestivals.selectedItem.discipline);
+			 currentState='editStory';
+			 ">
+		<mx:columns>
+				<mx:DataGridColumn headerText="Headline" dataField="title" width="200" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+											var today:Date = new Date();
+											//today = today + millisecondsPerDay * 5;
+											today.setTime(today.getTime() + millisecondsPerDay * outerDocument.daysAhead);
+											var deadDate:Date = new Date(data.compostDate);
+											var postDate:Date = new Date(data.postDate);
+											
+											if( deadDate < today ) setStyle("backgroundColor",0xFF0000);
+											else if (postDate > today ) setStyle("backgroundColor",0xCCCCCC);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.title}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>	
+					
+					
+					
+					
+
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Days Left" dataField="lifeSpan" width="55" />
+				<mx:DataGridColumn headerText="JPG" dataField="photoStory" width="30"
+					editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected"
+					/>
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  
+				 editable="false" 
+                rendererIsEditor="true" 
+                itemRenderer="mx.controls.CheckBox" 
+                editorDataField="selected" 
+					/>
+					<mx:DataGridColumn headerText="Dates" dataField="dateString" width="100"  />
+				<!---
+				<mx:DataGridColumn headerText="Live" dataField="live" width="30"  id="two"
+				 editable="true" 
+                rendererIsEditor="true" 
+                itemRenderer="components.radioTest" 
+                editorDataField="newLive" 
+					/>
+				-->	
+				<mx:DataGridColumn headerText="DSP" dataField="displayOrder" width="30"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:Text x="183" y="1104" text="{aPix.getItemAt(9).COUNT}" id="musicPix15" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="183" y="1339" text="{aPix.getItemAt(4).COUNT}" id="musicPix20" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="802" y="1105" text="{aPix.getItemAt(3).COUNT}" id="musicPix18" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="15" y="1105" text="Number of Picture Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text39"/>
+		<mx:Text x="634" y="1106" text="Number of Picture Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text43"/>
+		<mx:Text x="183" y="1122" text="{aLive.getItemAt(9).COUNT}" id="musicPix16" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="183" y="1356" text="{aLive.getItemAt(4).COUNT}" id="musicPix19" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="789" y="1123" text="{aLive.getItemAt(3).COUNT}" id="musicPix17" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="634" y="898" text="Number of Live Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text40"/>
+		<mx:Text x="634" y="698" text="NightLife" fontFamily="Verdana" fontSize="16" id="text41"/>
+		<mx:Text x="15" y="1123" text="Number of Live Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text37"/>
+		<mx:Text x="10" y="1340" text="Number of Picture Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text45"/>
+		<mx:Text x="10" y="1358" text="Number of Live Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text46"/>
+		<mx:Text x="634" y="1124" text="Number of Live Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text44"/>
+		<mx:Text x="15" y="911" text="Cool Values" fontFamily="Verdana" fontSize="16" id="text38"/>
+		<mx:Text x="13" y="1137" text="Festivals" fontFamily="Verdana" fontSize="16" id="text47"/>
+		<mx:Text x="634" y="911" text="Literature" fontFamily="Verdana" fontSize="16" id="text12"/>
+		<mx:Text x="183" y="667" text="{aPix.getItemAt(6).COUNT}" id="musicPix7" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="15" y="668" text="Number of Picture Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text27"/>
+		<mx:Text x="183" y="677" text="{aLive.getItemAt(6).COUNT}" id="musicPix8" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="15" y="678" text="Number of Live Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text28"/>
+		<mx:Text x="5" y="483" text="Museums" fontFamily="Verdana" fontSize="16" id="text29"/>
+		<mx:Text x="804" y="443" text="{aPix.getItemAt(5).COUNT}" id="musicPix5" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="636" y="444" text="Number of Picture Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text23"/>
+		<mx:Text x="804" y="461" text="{aLive.getItemAt(5).COUNT}" id="musicPix6" visible="true" width="30" fontFamily="Verdana" fontSize="14" height="39"/>
+		<mx:Text x="636" y="462" text="Number of Live Stories:" fontFamily="Verdana" fontSize="12" width="177" id="text24"/>
+		<mx:Text x="636" y="250" text="Video" fontFamily="Verdana" fontSize="16" id="text25"/>
+		<mx:Text x="15" y="16" text="Music" fontFamily="Verdana" fontSize="16" id="text22"/>
+		<mx:Text x="636" y="10" text="Theatre" fontFamily="Verdana" fontSize="16" id="text21"/>
+		<mx:Text x="15" y="250" text="Dance" fontFamily="Verdana" fontSize="16" id="text20"/>
+		<mx:ComboBox x="247" y="9" id="cboDaysAhead" change="comboBoxChange();">
+		<mx:ArrayCollection>
+			<mx:Number>1</mx:Number>
+			<mx:Number>2</mx:Number>
+			<mx:Number>3</mx:Number>
+			<mx:Number>4</mx:Number>
+			<mx:Number>5</mx:Number>
+			<mx:Number>6</mx:Number>
+			<mx:Number>7</mx:Number>
+			<mx:Number>8</mx:Number>
+			<mx:Number>9</mx:Number>
+			<mx:Number>11</mx:Number>
+			<mx:Number>12</mx:Number>
+			<mx:Number>13</mx:Number>
+			<mx:Number>14</mx:Number>
+			<mx:Number>15</mx:Number>
+			<mx:Number>100</mx:Number>
+		</mx:ArrayCollection>
+		
+		
+		
+		</mx:ComboBox>
+		<mx:Button x="432" y="9" label="See Expiring Stories" width="184" click="currentState = 'StatusReport'" id="button4"/>
+		<mx:ComboBox x="857" y="9" id="cboOffset" change="comboOffsetChange();">
+			<mx:ArrayCollection>
+			<mx:Number>0</mx:Number>
+			<mx:Number>-6</mx:Number>
+			<mx:Number>-5</mx:Number>
+			<mx:Number>-4</mx:Number>
+			<mx:Number>-3</mx:Number>
+			<mx:Number>-2</mx:Number>
+			<mx:Number>-1</mx:Number>
+			<mx:Number>0</mx:Number>
+			<mx:Number>1</mx:Number>
+			<mx:Number>2</mx:Number>
+			<mx:Number>3</mx:Number>
+			<mx:Number>4</mx:Number>
+			<mx:Number>5</mx:Number>
+			<mx:Number>6</mx:Number>
+			<mx:Number>7</mx:Number>
+			<mx:Number>8</mx:Number>
+			<mx:Number>9</mx:Number>
+			<mx:Number>11</mx:Number>
+			<mx:Number>12</mx:Number>
+			<mx:Number>13</mx:Number>
+			<mx:Number>14</mx:Number>
+			<mx:Number>15</mx:Number>
+			<mx:Number>100</mx:Number>
+		</mx:ArrayCollection>
+		</mx:ComboBox>
+		<mx:Label x="128" y="11" text="Set Warning Level:" id="label3"/>
+		<mx:Label x="718" y="11" text="Set Days Ahead Level:" id="label4"/>
+		<mx:Label x="15" y="0" text="Version 12/17/10A" id="label5"/>
+		<mx:Text x="1002" y="209" text="{arrayTheaterItems.length}" id="txtNumTheater"/>
+		<mx:Text x="419" y="207" text="{arrayMusicItems.length}" id="txtNumTheater0"/>
+		<mx:Text x="230" y="444" fontFamily="Verdana" fontSize="12" width="177" id="text52" text="Total number of Stories:"/>
+		<mx:Text x="221" y="671" fontFamily="Verdana" fontSize="12" width="177" id="text54" text="Total number of Stories:"/>
+		<mx:Text x="221" y="882" fontFamily="Verdana" fontSize="12" width="177" id="text56" text="Total number of Stories:"/>
+		<mx:Text x="380" y="884" text="{familyItems.length}" id="txtNumTheater5"/>
+		<mx:Text x="221" y="1107" fontFamily="Verdana" fontSize="12" width="177" id="text58" text="Total number of Stories:"/>
+		<mx:Text x="221" y="1341" fontFamily="Verdana" fontSize="12" width="177" id="text60" text="Total number of Stories:"/>
+		<mx:Text x="380" y="1343" text="{festivalItems.length}" id="txtNumTheater9"/>
+		<mx:Text x="380" y="1109" text="{eventItems.length}" id="txtNumTheater7"/>
+		<mx:Text x="380" y="673" text="{museumItems.length}" id="txtNumTheater3"/>
+		<mx:Text x="842" y="673" fontFamily="Verdana" fontSize="12" width="177" id="text55" text="Total number of Stories:"/>
+		<mx:Text x="840" y="884" fontFamily="Verdana" fontSize="12" width="177" id="text57" text="Total number of Stories:"/>
+		<mx:Text x="999" y="886" text="{nightLifeItems.length}" id="txtNumTheater6"/>
+		<mx:Text x="840" y="1109" fontFamily="Verdana" fontSize="12" width="177" id="text59" text="Total number of Stories:"/>
+		<mx:Text x="999" y="1111" text="{literaryItems.length}" id="txtNumTheater8"/>
+		<mx:Text x="1001" y="675" text="{galleryItems.length}" id="txtNumTheater4"/>
+		<mx:Text x="839" y="445" fontFamily="Verdana" fontSize="12" width="177" id="text53" text="Total number of Stories:"/>
+		<mx:Text x="998" y="447" text="{filmVideoItems.length}" id="txtNumTheater2"/>
+		<mx:Text x="389" y="446" text="{arrayDanceItems.length}" id="txtNumTheater1"/>
+		<mx:Label x="111" y="-1" text="Total Stories:" id="label7"/>
+		<mx:Label x="191" y="-1" text="{intTotalStories}" id="label6"/>
+	</mx:Canvas>
+<mx:RemoteObject
+      id="sfartsService"
+      destination="ColdFusion"
+      source="sfarts.jftemp.sfAIR"   
+      showBusyCursor="true" 
+     endpoint = "http://www.sfarts.org/flex2gateway/">
+	
+	  <!-- Define the methods of the CFC within the remote object and assign function to handle  --> 
+	  <mx:method  name="getEditorialContent"  result="handleGetEditorialContent(event)" fault="Alert.show(event.fault.message)"/>
+	  <mx:method  name="getSpecificStory"  result="handleGetSpecificStory(event)" fault="Alert.show(event.fault.message)"/>
+	   <mx:method  name="getEditorialForDisp"  result="handleGetEditorialForDisp(event)" fault="Alert.show(event.fault.message)"/>  
+	   <mx:method  name="procUpdateStory"  fault="Alert.show(event.fault.message)"/> 
+	   <mx:method  name="getPodSubjects"  result="handleGetPodSubjects(event)" fault="Alert.show(event.fault.message)"/> 
+	    <mx:method  name="getNumberOfLiveStories"  result="getStoryCount(event)" fault="Alert.show(event.fault.message)"/> 
+	    <mx:method  name="getNumberOfPictStories"  result="handleGetPixItems(event)" fault="Alert.show(event.fault.message)"/>
+	    <mx:method  name="getNumberOfLiveStories2"  result="handleGetLiveItems(event)" fault="Alert.show(event.fault.message)"/>
+	    <mx:method  name="getEventsBySimpleStringSearch"  result="handleGetEventsByStringSearch(event)" fault="Alert.show(event.fault.message)"/>
+	    <mx:method  name="getEventsBySimpleStringSearch0"  result="handleGetEventsByStringSearch0(event)" fault="Alert.show(event.fault.message)"/>
+	    <mx:method  name="getExpiringStories"  result="handlegetExpiringStories(event)" fault="Alert.show(event.fault.message)"/>
+	   <mx:method  name="procCreateStory"  fault="Alert.show(event.fault.message)"/>  
+</mx:RemoteObject>	
+</mx:WindowedApplication>

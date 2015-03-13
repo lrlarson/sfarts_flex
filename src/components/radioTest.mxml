@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100" height="100">
+	<mx:Script>
+		<![CDATA[
+			 // Define a property for returning the new value to the cell.
+            [Bindable]
+            public var newLive:Boolean;
+    
+		]]>
+	</mx:Script>
+		
+	<mx:CheckBox id="button" selected="Boolean({data.live})"  change="newLive=this.button.selected;trace(data.id);"  />
+</mx:HBox>

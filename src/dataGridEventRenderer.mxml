@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="88" height="22">
+<mx:Script>
+	<![CDATA[
+		
+		private function initComp(testDate:String):void{
+			//var eventDate:Date = new Date(data.timeSeriesEnd.time);
+			//var nowDate:Date = new Date();
+			if (testDate.length < 19){
+				this.textTarget.text = data.Event_Name;
+			this.textTarget.setStyle('color','red');
+			} else{
+			this.textTarget.text = data.Event_Name;
+			this.textTarget.setStyle('color','black');
+			}
+		}
+	]]>
+</mx:Script>
+	
+	<mx:Label id="textTarget"    creationComplete="initComp(data.Event_Name)"/>	
+</mx:Canvas>

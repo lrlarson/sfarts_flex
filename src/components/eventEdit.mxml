@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="950" height="1000" xmlns:ns1="com.universalmind.controls.*"  xmlns:ns2="*"  xmlns:ns3="components.*"
+	 creationComplete="initComp();">
+	<mx:Script>
+		<![CDATA[
+			
+			import mx.rpc.events.ResultEvent;
+       		import mx.collections.ArrayCollection;	
+       		import flash.events.*;
+            import mx.events.*;
+            import mx.controls.Alert;
+            import components.*;
+            import mx.events.ValidationResultEvent;
+            
+
+            
+            
+            public var orgID:int;
+            public var eventNUM:int;
+             public var mode:String = 'edit';
+           //  private var panel:Panel;
+
+			public static const millisecondsPerDay:int = 1000 * 60 * 60 * 24; 
+             	
+          
+           //public var boolUserSubmission:Boolean = false;
+            public var htmlAddress:String ;
+            
+           [Bindable]
+			private var acAllVenues:ArrayCollection;
+			
+			[Bindable]
+			private var acDisps:ArrayCollection;
+			
+			[Bindable]
+			public var selectedVenueID:int;
+			
+			[Bindable]
+			public var oEventDetail:Object;
+			
+			[Bindable]
+			private var oInsertReturn:Object;
+			
+			private function initComp():void{
+				this.visible = false;
+			trace(this.parentApplication.txtURL.text);
+			
+		
+
+			}
+			
+			 
+
+			
+			
+			private function smartComboChange(event:Event):void{
+				trace(this.cboSmartVenue.selectedItem.data);
+				this.selectedVenueID = this.cboSmartVenue.selectedItem.data;
+				trace (this.cboSmartVenue.selectedLabel);
+				this.labelVENUE_NAME.text = this.cboSmartVenue.selectedLabel;
+				this.parentApplication.venueID = this.cboSmartVenue.selectedItem.data;
+				this.parentApplication.editCurrentVenue.visible = true;
+				changeEvent(event);
+			}
+			
+			private function cboVenueComplete():void{
+				var item:Object;
+				item = new Object;
+				item.label = 'Type Here to Select Venue...';
+				acAllVenues.addItemAt(item,0);
+				//this.cboSmartVenue.selectedIndex = 0;
+			}
+			
+			private function getAllVenues(event:ResultEvent):void{
+				acAllVenues = event.result as ArrayCollection;
+			}
+			private function getEventDetailsResult(event:ResultEvent):void{
+				oEventDetail = event.result as Object;
+				this.parentApplication.venueID = oEventDetail.VENUEID;
+				this.selectedVenueID = oEventDetail.VENUEID;
+				this.ticketURL.text = oEventDetail.TICKETLINK;
+				formatThisEvent();
+				//this.cboVenues.selectedItem. = oEventDetail.VENUE_ID;
+			}
+			
+			private function getCreateEventResult(event:ResultEvent):void{
+				var org:int;
+				oInsertReturn = event.result as Object;
+				this.eventNum.text = oInsertReturn.EVENT_NUM;
+				formatThisEvent();
+				if (!(this.parentApplication.comboOrg.selectedItem)){
+           			org = int(this.parentApplication.dgWebSubmissions.selectedItem.org_num)
+           		}	else {
+           			org = int(this.parentApplication.comboOrg.selectedItem.data);
+           		}
+				this.parentApplication.sfartsService.getEventsForOrg(org);
+				this.btnDeleteEvent.visible = true;
+				if (this.parentApplication.boolUserSubmission == true){
+					
+					
+					
+					//service to send email
+					this.sfartsService.notifySubmitter(
+						this.parentApplication.dgWebSubmissions.selectedItem.email,
+						this.parentApplication.dgWebSubmissions.selectedItem.event_name,
+						'new event'
+					);
+					
+					this.parentApplication.boolUserSubmission == false;
+					Alert.show('This Event has been added. An email has been sent to the submitter. You may now delete the event and then click finshed with submission.');
+					return;
+				}
+				
+			}
+			
+			private function getEventDispResult (event:ResultEvent):void{
+				acDisps = event.result as ArrayCollection;
+			}
+			
+			public function getEventDetails(eventNum:int):void{
+				this.sfartsService.getEventDetails(eventNum);
+				this.visible = true;
+				this.saveBtn.visible = false;
+				
+			}
+            private function setTextVenue(event:Event):void{
+				//trace(this.cboVenues.selectedItem.data);
+				//this.sfartsService.getEventsForOrg(this.comboOrg.selectedItem.data);
+				//this.txtURL.text = this.comboOrg.selectedItem.Org_Web;
+			}
+            
+            private function formatThisEvent():void{
+            	
+            	if (this.cycleEvent.selected == true){
+            		this.calendarDates.visible = false;
+            		this.weeklyDates.visible = true;
+            	}else if (this.nonCycleEvent.selected == true){
+            		this.calendarDates.visible = true;
+            		this.weeklyDates.visible = false;
+            	}
+            	if ((this.cycleEvent.selected == true) && (this.nonCycleEvent.selected == true)){
+            		this.calendarDates.visible = true;
+            		this.weeklyDates.visible = true;
+            	}
+            }
+            
+            private function handleDateTypeChange():void{
+            	if (this.cycleEvent.selected == true){
+            		this.nonCycleEvent.selected = false;
+            	}else if (this.cycleEvent.selected == false){
+            		this.nonCycleEvent.selected = true;
+            	}
+            	formatThisEvent();
+            }
+            
+            private function handleDateTypeChange2():void{
+            	if (this.nonCycleEvent.selected == true){
+            		this.cycleEvent.selected = false;
+            	}else if (this.nonCycleEvent.selected == false){
+            		this.cycleEvent.selected = true;
+            	}
+            	formatThisEvent();
+            }
+            
+            private function ticketHighFocusOut():void{
+            	this.ticketHigh.text = Price.format(this.ticketHigh.text);
+            	if ((this.ticketHigh.text == '$0.00') && (this.ticketLow.text == '$0.00')){
+            	this.ticketString.text = 'Free';
+            	} else if (this.ticketHigh.text == ''){
+            		this.ticketHigh.text = this.ticketLow.text;
+            		this.ticketString.text = this.ticketLow.text;
+            	}
+            }
+            
+             private function ticketLowFocusOut():void{
+            	this.ticketLow.text = Price.format(this.ticketLow.text);
+            	
+            }
+            
+            private function startFocusOut():void{
+            	var pattern1:RegExp =  /\/.\//;  
+            	var pattern2:RegExp =  /\/..\//;                                                                                                                                            ;
+				//var test:String = this.endDate.text;
+				trace(this.endDate.text);
+				trace(pattern1.test(this.startDate.text));
+				trace(pattern2.test(this.startDate.text));
+				if 	((pattern1.test(this.startDate.text)== true )|| (pattern2.test(this.startDate.text)== true)){
+					this.startDate.text = dateDisplay.format(this.startDate.text);
+				}else{
+					var workstring:String = this.startDate.text;
+					workstring = workstring + '/14';
+					trace(workstring);
+					this.startDate.text = workstring;
+					this.startDate.text = dateDisplay.format(this.startDate.text);
+				}
+            
+            }
+            
+            private function endFocusOut():void{
+            	
+            	if (this.endDate.text == ''){
+            		this.endDate.text = this.startDate.text;
+            	}
+            	
+            	var pattern1:RegExp =  /\/.\//;  
+            	var pattern2:RegExp =  /\/..\//;                                                                                                                                            ;
+				//var test:String = this.endDate.text;
+				trace(this.endDate.text);
+				trace(pattern1.test(this.endDate.text));
+				trace(pattern2.test(this.endDate.text));
+				if 	((pattern1.test(this.endDate.text)== true )|| (pattern2.test(this.endDate.text)== true)){
+					this.endDate.text = dateDisplay.format(this.endDate.text);
+				}else{
+					var workstring:String = this.endDate.text;
+					workstring = workstring + '/14';
+					trace(workstring);
+					this.endDate.text = workstring;
+					this.endDate.text = dateDisplay.format(this.endDate.text);
+				}
+            	
+            }
+            
+            private function onComplete(e:Event):void{
+            	trace('event fired ' + e);
+            	trace(e.currentTarget.domWindow.location);
+            	this.ticketURL.text = e.currentTarget.domWindow.location;
+            	trace ('ticket url' + this.parentApplication.txtURL.text);
+            }
+            
+            private function onInitialize(e:Event):void{
+            	trace('html initialized');
+            }
+            
+            private function changeEvent(event:Event):void{
+            if (this.mode == 'edit'){
+             this.saveBtn.visible = true;
+             this.saveNewBtn.visible = false;
+             //this.btnDeleteEvent.visible = false;
+            trace(event.target);	
+            }else{
+            this.saveNewBtn.visible = true;
+            this.saveBtn.visible = false;
+            trace(event.target);	
+            	}
+            }
+           
+       	private function doTheTest():void{
+       		var startDatex:Date = new Date(this.startDate.text);
+           	
+            	
+            	var endDatex:Date = new Date(this.endDate.text);
+            	var dateDiff:Number = getDaysDifference(startDatex,endDatex);
+            	trace('new dateDiff = '+dateDiff);
+       	}
+         
+         
+         
+         
+		private function getDaysDifference(minDate:Date, maxDate:Date):uint
+		{
+	        return  (maxDate.getTime() - minDate.getTime()) / 86400000;
+
+		} 
+         
+           
+            private function updateEventData():void{
+            	
+            	var disp2:int;
+            	if (this.cboDisp0.selectedIndex == -1){
+            		disp2 = 11;}
+            		else{
+            		disp2 = this.cboDisp0.selectedItem.data;
+            	}
+            	
+            	
+            	var startDatex:Date = new Date(this.startDate.text);
+           		//startDatex = startDatex + millisecondsPerDay;
+            	var endDatex:Date = new Date(this.endDate.text);
+            	var dateDiff:Number = getDaysDifference(startDatex,endDatex);
+            	var now:Date = new Date();
+            	this.sfartsService.updateEventRecord(
+            	this.childDiscount.selected,
+				this.xd1.selected,
+				this.xd10.selected,
+				this.xd11.selected,
+				this.xd12.selected,
+				 this.xd13.selected,
+				 this.xd14.selected,
+				this.xd15.selected,
+				this.xd16.selected,
+				 this.xd17.selected,
+				 this.xd18.selected,
+		 		this.xd19.selected,
+				 this.xd2.selected,
+				 this.xd20.selected,
+				 this.xd21.selected,
+				 this.xd22.selected,
+				 this.xd23.selected,
+				this.xd24.selected,
+				 this.xd25.selected,
+				this.xd26.selected,
+				 this.xd27.selected,
+				this.xd28.selected,
+				this.xd29.selected,
+				this.xd3.selected,
+				this.xd30.selected,
+				this.xd31.selected,
+				this.xd4.selected,
+				this.xd5.selected,
+				this.xd6.selected,
+				 this.xd7.selected,
+				this.xd8.selected,
+				this.xd9.selected,
+				 this.dateString.text,
+				this.endDate.text,//endDatex,
+				 this.eventDescription.text,
+				 this.eventName.text,
+				int(this.eventNum.text),
+				this.eventPhone.text,
+				now, //this.timeString.text, //watch out for this -- maybe take it out of everything...
+				0,
+				 this.friday.selected,
+				 this.cycleEvent.selected,
+				 
+				this.cboDisp1.selectedItem.data,
+				disp2,
+				// this.cboDisp0.selectedItem.data,
+				 this.monday.selected,
+				int(this.parentApplication.comboOrg.selectedItem.data),
+				//oEventDetail.ORG_NUM,
+				
+				 this.nonCycleEvent.selected,
+				this.saturday.selected,
+				 this.seniorDiscount.selected,
+				this.startDate.text,//startDatex,
+				this.studentDiscount.selected,
+				this.sunday.selected,
+				this.thursday.selected,
+				 this.ticketHigh.numValue,
+			this.ticketLow.numValue,
+				this.ticketString.text,
+				 this.timeString.text,
+				this.tuesday.selected,
+				this.labelVENUE_NAME.text,
+				 this.selectedVenueID,
+				 //this.cboVenue2.selectedItem.label,
+				 //this.cboVenue2.selectedItem.data,
+				this.wednesday.selected,
+				dateDiff,
+				this.chkAllowOverride.selected
+				);
+				this.saveBtn.visible = false;
+           		this.parentApplication.sfartsService.getEventsForOrg(this.parentApplication.comboOrg.selectedItem.data);
+           		}
+           private function createNewEventData():void{
+           		var org:int;
+           		if((this.selectedVenueID == 0) || (this.eventName.text == '') || (this.startDate.text == '') || (this.endDate.text == '')){
+           			Alert.show('There are fields that are not completed!');
+           			return;
+           		}else{
+           		
+           		if (!(this.parentApplication.comboOrg.selectedItem)){
+           			org = int(this.parentApplication.dgWebSubmissions.selectedItem.org_num)
+           		}	else {
+           			org = this.parentApplication.comboOrg.selectedItem.data;
+           		}
+           		
+           		if ((this.cycleEvent.selected == 0 ) && (this.nonCycleEvent.selected == 0 )){
+           			Alert.show('The weekly/non-weekly fields must be set...');
+           			return;
+           		}
+           		
+           		var startDatex:Date = new Date(this.startDate.text);
+            	var endDatex:Date = new Date(this.endDate.text);
+            	endDatex.hours = 4;
+            	startDatex.hours = 4;
+            	var dateDiff:Number = getDaysDifference(startDatex,endDatex);
+            	var now:Date = new Date();
+            	var disp2:int;
+            	
+            	if (this.cboDisp0.selectedIndex == -1){
+            		disp2 = 11;}
+            		else{
+            		disp2 = this.cboDisp0.selectedItem.data;
+            	}
+            
+            	this.sfartsService.createEventRecord(
+            	this.childDiscount.selected,
+				this.xd1.selected,
+				this.xd10.selected,
+				this.xd11.selected,
+				this.xd12.selected,
+				 this.xd13.selected,
+				 this.xd14.selected,
+				this.xd15.selected,
+				this.xd16.selected,
+				 this.xd17.selected,
+				 this.xd18.selected,
+		 		this.xd19.selected,
+				 this.xd2.selected,
+				 this.xd20.selected,
+				 this.xd21.selected,
+				 this.xd22.selected,
+				 this.xd23.selected,
+				this.xd24.selected,
+				 this.xd25.selected,
+				this.xd26.selected,
+				 this.xd27.selected,
+				this.xd28.selected,
+				this.xd29.selected,
+				this.xd3.selected,
+				this.xd30.selected,
+				this.xd31.selected,
+				this.xd4.selected,
+				this.xd5.selected,
+				this.xd6.selected,
+				 this.xd7.selected,
+				this.xd8.selected,
+				this.xd9.selected,
+				 this.dateString.text,
+				 //endDatex,
+				this.endDate.text,
+				 this.eventDescription.text,
+				 this.eventName.text,
+				//int(this.eventNum.text),
+				this.eventPhone.text,
+				now, //this.timeString.text, //watch out for this -- maybe take it out of everything...
+				0,
+				 this.friday.selected,
+				 this.cycleEvent.selected,
+				this.cboDisp1.selectedItem.data,
+				 disp2,
+				 this.monday.selected,
+				//this.parentApplication.comboOrg.selectedItem.data,
+				org,
+				 this.nonCycleEvent.selected,
+				this.saturday.selected,
+				 this.seniorDiscount.selected,
+				//startDatex,
+				this.startDate.text,
+				this.studentDiscount.selected,
+				this.sunday.selected,
+				this.thursday.selected,
+				 this.ticketHigh.numValue,
+			this.ticketLow.numValue,
+				this.ticketString.text,
+				 this.timeString.text,
+				this.tuesday.selected,
+				 this.labelVENUE_NAME.text,
+				 this.selectedVenueID,
+				this.wednesday.selected,
+				dateDiff,
+				this.chkAllowOverride.selected
+				)
+				this.saveNewBtn.visible = false;
+				this.mode = 'edit'
+				
+				this.ticketURLButton.visible = true;
+           		}
+           		
+           }
+           
+           private function clickSaveTicketURL():void{
+           	if (this.ticketURL.text != 'No ticket link has been entered'){
+           		
+           	
+           this.sfartsService.setTicketURL(int(this.eventNum.text),this.ticketURL.text);
+           this.ticketSavedLink.visible = true;
+           this.ticketSavedLink.text = 	this.ticketURL.text;
+           trace(this.html.location);
+           	}else{
+           		Alert.show('There is no meaningful data in the ticket link field.');
+           	}
+           }
+           
+           
+           private function deleteEvent():void{
+           	this.sfartsService.deleteEvent(this.oEventDetail.EVENT_NUM);
+           	Alert.show('The event has been deleted, although its ghost lingers on the screen behind me.');
+           this.parentApplication.sfartsService.getEventsForOrg(this.parentApplication.comboOrg.selectedItem.data);
+           }
+           
+		]]>
+	</mx:Script>
+	<mx:Text x="415" y="10" text="Event Editor" id="text1" fontFamily="Georgia" fontSize="17"/>
+	
+	<mx:CurrencyFormatter id="Price" precision="2"
+        rounding="none"
+        decimalSeparatorTo="."
+        thousandsSeparatorTo=","
+        useThousandsSeparator="true"
+        useNegativeSign="true"
+        currencySymbol="$"
+        alignSymbol="left"
+        />
+
+	 <!-- Declare a DateFormatter and define parameters.-->
+    <mx:DateFormatter id="dateDisplay" 
+        formatString="M/D/YYYY"
+     />
+
+	<mx:RemoteObject
+      id="sfartsService"
+      destination="ColdFusion"
+      source="sfarts.jftemp.sfAIR"   
+      showBusyCursor="true" 
+      endpoint = "http://www.sfarts.org/flex2gateway/">
+      
+ 
+      <mx:method  name="getAllVenues"  result="getAllVenues(event)" fault="Alert.show(event.fault.message)"/>
+      <mx:method  name="getEventDetails"  result="getEventDetailsResult(event)" fault="Alert.show(event.fault.message)"/>
+      <mx:method  name="getDisciplines"  result="getEventDispResult(event)" fault="Alert.show(event.fault.message)"/>
+      <mx:method  name="createEventRecord"  result="getCreateEventResult(event)" fault="Alert.show(event.fault.message)"/>
+       <mx:method  name="updateEventRecord"   fault="Alert.show(event.fault.message)"/>
+       <mx:method  name="setTicketUrl"   fault="Alert.show(event.fault.message)"/>
+       <mx:method  name="deleteEvent"   fault="Alert.show(event.fault.message)"/>
+       <mx:method  name="notifySubmitter"   fault="Alert.show(event.fault.message)"/>
+      </mx:RemoteObject>
+      
+      
+      
+	<mx:Label x="10" y="46" text="Current Venue:" id="label5"/>
+	<mx:Label x="10" y="241" text="Ticket Low:" id="label7"/>
+	<mx:Label x="10" y="319" text="Start Date:" id="label11"/>
+	
+	<mx:Label x="598" y="255" text="Senior Discount:" id="senior"/>
+	<mx:Label x="598" y="229" text="Student Discount:" id="student"/>
+	<mx:Label x="598" y="281" text="Child Discount:"  id="child" />
+	<mx:CheckBox x="710" y="281" id="childDiscount" selected="{oEventDetail.CHILD_DISCOUNT}" change="changeEvent(event);"/>
+	<mx:CheckBox x="710" y="255" id="seniorDiscount" selected="{oEventDetail.SENIOR_DISCOUNT}" change="changeEvent(event);"/>
+	<mx:CheckBox x="710" y="229" id="studentDiscount" selected="{oEventDetail.STUDENT_DISCOUNT}" change="changeEvent(event);"/>
+	<mx:Label x="10" y="385" text="Weekly Cycle:" id="label14"/>
+	<mx:Label x="145" y="385" text="Non Weekly Cycle:" id="label15"/>
+	<mx:Label x="184" y="319" text="End Date:" id="label12"/>
+	<mx:Label x="357" y="321" text="Date String:" id="label13"/>
+	<mx:Label x="582" y="319" text="Time String:" id="label4"/>
+	<mx:Label x="184" y="241" text="Ticket High:" id="label8"/>
+	<mx:Label x="358" y="241" text="Ticket String:" id="label10"/>
+	<mx:Label x="598" y="104" text="Discipline 1:" id="label2"/>
+	<mx:Label x="325" y="46" text="Event Phone:" id="label9"/>
+	<mx:Label x="598" y="46" text="Event Name:" id="label1"/>
+	<mx:TextInput x="325" y="72" width="236" id="eventPhone" text="{oEventDetail.EVENT_PHONE}" change="changeEvent(event);"  focusOut="trace('focus');" />
+	<mx:TextInput x="598" y="72" width="326" id="eventName" text="{oEventDetail.EVENT_NAME}" change="changeEvent(event);" maxChars="50"/>
+	<mx:TextArea x="10" y="130" width="551" height="103" id="eventDescription" text="{oEventDetail.EVENT_DESCRIPTION}" change="changeEvent(event);"/>
+	<ns2:comboBox2 x="617" y="499" dataProvider="{acAllVenues}" tabIndex="0" id="cboVenue2" selectedValue="{oEventDetail.VENUEID}" visible="false" creationComplete="this.sfartsService.getAllVenues();" width="295" change="changeEvent(event);"/>
+	<ns2:comboBox2 x="598" y="129" id="cboDisp1" dataProvider="{acDisps}" selectedValue="{oEventDetail.ID}" creationComplete="this.sfartsService.getDisciplines();" width="264" change="changeEvent(event);"/>
+	<mx:Label x="598" y="159" text="Discipline 2:" id="label3"/>
+	<ns2:comboBox2 x="598" y="184" id="cboDisp0" dataProvider="{acDisps}" selectedValue="{oEventDetail.ID2}" creationComplete="this.sfartsService.getDisciplines();" width="264" change="changeEvent(event);"/>
+	<ns3:numberInput x="10" y="267" text="{Price.format(oEventDetail.TICKET_LOW)}" id="ticketLow"    width="166" change="changeEvent(event);" focusOut="ticketLowFocusOut();"/>
+	<ns3:numberInput x="184" y="267" id="ticketHigh" text="{Price.format(oEventDetail.TICKET_HIGH)}" width="160" change="changeEvent(event);" focusOut="ticketHighFocusOut();"/>
+	<mx:TextArea x="358" y="268" width="203" id="ticketString" text="{oEventDetail.TICKET_STRING}" height="45" change="changeEvent(event);"/>
+	<mx:TextInput x="10" y="345" id="startDate" width="166" text="{this.dateDisplay.format(oEventDetail.START_DATE)}" change="changeEvent(event);" focusOut="startFocusOut();"/>
+	<mx:TextInput x="184" y="345" id="endDate" text="{this.dateDisplay.format(oEventDetail.END_DATE)}" width="160" change="changeEvent(event);" focusOut="endFocusOut();"/>
+	<mx:TextArea x="358" y="346" width="203" id="dateString" text="{oEventDetail.DATE_STRING}" height="57" change="changeEvent(event);"/>
+	<mx:TextArea x="598" y="346" id="timeString" text="{oEventDetail.TIME_STRING}" width="188" height="57" change="changeEvent(event);"/>
+	<mx:CheckBox x="123" y="385" id="cycleEvent" selected="{oEventDetail.GALLERY_MUSEUM_EVENT}" change="handleDateTypeChange();changeEvent(event);"/>
+	<mx:CheckBox x="258" y="385" id="nonCycleEvent" selected="{oEventDetail.PERFORMING_ARTS_EVENT}" change="handleDateTypeChange2();changeEvent(event);"/>
+	
+	 <mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
+	
+	<mx:Canvas x="6" y="404" width="423" height="131" backgroundColor="#FFFFFF" id="calendarDates" visible="true">
+		<mx:CheckBox x="10" y="12" label="1" id="xd1" selected="{oEventDetail.D1}"/>
+		<mx:CheckBox x="56" y="12" label="2" id="xd2" selected="{oEventDetail.D2}"/>
+		<mx:CheckBox x="103" y="12" label="3" id="xd3" selected="{oEventDetail.D3}"/>
+		<mx:CheckBox x="142" y="12" label="4" id="xd4" selected="{oEventDetail.D4}"/>
+		<mx:CheckBox x="180" y="12" label="5" id="xd5" selected="{oEventDetail.D5}"/>
+		<mx:CheckBox x="222" y="12" label="6" id="xd6" selected="{oEventDetail.D6}"/>
+		<mx:CheckBox x="268" y="12" label="7" id="xd7" selected="{oEventDetail.D7}"/>
+		<mx:CheckBox x="308" y="12" label="8" id="xd8" selected="{oEventDetail.D8}"/>
+		<mx:CheckBox x="346" y="12" label="9" id="xd9" selected="{oEventDetail.D9}"/>
+		<mx:CheckBox x="10" y="42" label="10" id="xd10" selected="{oEventDetail.D10}"/>
+		<mx:CheckBox x="56" y="42" label="11" id="xd11" selected="{oEventDetail.D11}"/>
+		<mx:CheckBox x="103" y="42" label="12" id="xd12" selected="{oEventDetail.D12}"/>
+		<mx:CheckBox x="142" y="42" label="13" id="xd13" selected="{oEventDetail.D13}"/>
+		<mx:CheckBox x="180" y="42" label="14" id="xd14" selected="{oEventDetail.D14}"/>
+		<mx:CheckBox x="221" y="42" label="15" id="xd15" selected="{oEventDetail.D15}"/>
+		<mx:CheckBox x="268" y="42" label="16" id="xd16" selected="{oEventDetail.D16}"/>
+		<mx:CheckBox x="306" y="42" label="17" id="xd17" selected="{oEventDetail.D17}"/>
+		<mx:CheckBox x="346" y="42" label="18" id="xd18" selected="{oEventDetail.D18}"/>
+		<mx:CheckBox x="9" y="72" label="19" id="xd19" selected="{oEventDetail.D19}"/>
+		<mx:CheckBox x="56" y="72" label="20" id="xd20" selected="{oEventDetail.D20}"/>
+		<mx:CheckBox x="103" y="72" label="21" id="xd21" selected="{oEventDetail.D21}"/>
+		<mx:CheckBox x="142" y="72" label="22" id="xd22" selected="{oEventDetail.D22}"/>
+		<mx:CheckBox x="180" y="72" label="23" id="xd23" selected="{oEventDetail.D23}"/>
+		<mx:CheckBox x="222" y="72" label="24" id="xd24" selected="{oEventDetail.D24}"/>
+		<mx:CheckBox x="268" y="72" label="25" id="xd25" selected="{oEventDetail.D25}"/>
+		<mx:CheckBox x="306" y="72" label="26" id="xd26" selected="{oEventDetail.D26}"/>
+		<mx:CheckBox x="55" y="99" label="29" id="xd29" selected="{oEventDetail.D29}"/>
+		<mx:CheckBox x="102" y="99" label="30" id="xd30" width="47" selected="{oEventDetail.D30}"/>
+		<mx:CheckBox x="142" y="99" label="31" id="xd31" selected="{oEventDetail.D31}"/>
+		<mx:CheckBox x="346" y="72" label="27" id="xd27" selected="{oEventDetail.D27}"/>
+		<mx:CheckBox x="8" y="100" label="28" id="xd28" selected="{oEventDetail.D28}"/>
+
+	</mx:Canvas>
+	<mx:Canvas x="9" y="404" width="309" height="93" id="weeklyDates" visible="true">
+		<mx:CheckBox x="114.5" y="10" label="Monday" id="monday" selected="{oEventDetail.MONDAY}"/>
+		<mx:CheckBox x="114.5" y="34" label="Tuesday" id="tuesday" selected="{oEventDetail.TUESDAY}"/>
+		<mx:CheckBox x="114.5" y="60" label="Wednesday" id="wednesday" selected="{oEventDetail.WEDNESDAY}"/>
+		<mx:CheckBox x="202.5" y="10" label="Thursday" id="thursday" selected="{oEventDetail.THURSDAY}"/>
+		<mx:CheckBox x="29.5" y="10" label="Friday" id="friday" selected="{oEventDetail.FRIDAY}"/>
+		<mx:CheckBox x="29.5" y="34" label="Saturday" id="saturday" selected="{oEventDetail.SATURDAY}"/>
+		<mx:CheckBox x="29.5" y="60" label="Sunday" id="sunday" selected="{oEventDetail.SUNDAY}"/>
+	</mx:Canvas>
+	<mx:Button x="783" y="227" label="Save These Changes" id="saveBtn" visible="true" click="updateEventData();" height="46"/>
+	<mx:Button x="770" y="227" label="Create New Event Record" id="saveNewBtn" visible="true" click="createNewEventData();" height="46"/>
+	<mx:Text x="601" y="20" text="{oEventDetail.EVENT_NUM}" width="169" id="eventNum" enabled="false"/>
+	<mx:Label x="10" y="104" text="Event Description:" id="label6"/>
+	<mx:HTML x="10" y="538" width="852" height="462" id="html" location="{this.parentApplication.txtURL.text}" visible="true" 
+		creationComplete="html.addEventListener(Event.COMPLETE, onComplete);" />
+	<mx:Button x="449" y="514" label="Back" width="54" height="16" fontSize="8" id="back" click="this.html.historyBack();"/>
+	<mx:Button x="511" y="514" label="Forward" width="66" height="16" fontSize="8" id="forward" click="this.html.historyForward();"/>
+	<mx:TextInput x="449" y="454" width="368" id="ticketURL"/>
+	<mx:Button x="450" y="484" label="Save this ticket location as the buy tickets link" width="367" id="ticketURLButton" visible="false" click="clickSaveTicketURL();"/>
+	<mx:Text x="449" y="428" text="{oEventDetail.TICKETLINK}" width="368" id="ticketSavedLink"/>
+	<mx:Text x="452" y="411" text="Current Ticket Link:" width="128"/>
+	<mx:Button x="770" y="301" label="Delete this event" width="170" click="deleteEvent();" id="btnDeleteEvent"/>
+	<mx:Button x="811" y="357" label="Button" click="doTheTest()" visible="false"/>
+	<mx:Label x="97" y="46" id="labelVENUE_NAME" text="{oEventDetail.VENUE_NAME}" width="220"/>
+	<ns1:SmartCombo x="10" y="72"  id="cboSmartVenue" dataProvider="{this.acAllVenues}" prompt="Select New Venue" caseSensitiveSearching="false"
+		 change="smartComboChange(event)" width="296"/>
+	<mx:Label x="621" y="10" text="{this.selectedVenueID.toString()}" id="lblVenueID"/>
+	<mx:Label x="325" y="104" width="236" id="txtEmail"/>
+	<mx:CheckBox x="794" y="345" label="Allow Publish Override" id="chkAllowOverride" selected="{oEventDetail.PRINTEXCEPTION}" change="changeEvent(event);"/>
+	
+	
+	
+	
+	
+</mx:Canvas>

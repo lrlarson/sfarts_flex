@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="630" height="734" xmlns:ns2="*" creationComplete="init()"  xmlns:ns1="com.universalmind.controls.*">
+
+<mx:Script>
+	<![CDATA[
+			import mx.rpc.events.ResultEvent;
+       		import mx.collections.ArrayCollection;	
+       		import flash.events.*;
+            import mx.events.*;
+            import mx.controls.Alert;
+            import com.yahoo.maps.api.core.location.LatLon;
+			import com.yahoo.maps.api.markers.Marker;
+			import com.yahoo.maps.api.markers.SimpleMarker;
+			 import mx.managers.PopUpManager;
+			import mx.containers.ControlBar;
+            import mx.containers.Panel;
+            import mx.containers.VBox;
+            import mx.controls.Button;
+            import mx.controls.Label;
+            import mx.controls.Spacer;
+            import mx.controls.TextArea;
+		
+      
+   
+            import mx.managers.FocusManager;
+            
+            import mx.events.ResizeEvent; 
+            // import maps classes.
+            import com.yahoo.maps.api.YahooMap; 
+            import com.yahoo.maps.api.YahooMapEvent; 
+            import com.yahoo.maps.api.core.location.Address; 
+            import com.yahoo.maps.webservices.geocoder.GeocoderResult; 
+            import com.yahoo.maps.webservices.geocoder.events.GeocoderEvent; 
+    		
+    		
+    		
+    		 private var panel:Panel;
+            
+           	private  var vb:VBox = new VBox();
+          //  private var label:Label = new Label();
+            private var textArea:TextArea = new TextArea();
+    		
+    		private var _yahooMap:YahooMap; 
+            private var _address:Address; 
+            private var boolUserSubmission:Boolean = false;
+            [Bindable]
+            public var submittedVenues:ArrayCollection;
+            
+            [Bindable]
+            public var collVenues:ArrayCollection;
+            
+         	public var addressString:String;
+            
+            private var oNewVenueObject:Object;
+            
+            public function init():void{
+            	this.sfartsService.getUserVenues();
+            	this.sfartsService.getAllVenues();
+            	
+            	//popup code...
+			
+				
+
+                var cb:ControlBar = new ControlBar();
+                var s:Spacer = new Spacer();
+                var b1:Button = new Button();
+                var b2:Button = new Button();
+
+                s.percentWidth = 100;
+
+                b1.label = "OK";
+                b1.addEventListener(MouseEvent.CLICK, closePopUp);
+                b2.label = "Cancel";
+                b2.addEventListener(MouseEvent.CLICK, closePopUp);
+
+                cb.addChild(s);
+                cb.addChild(b1);
+                cb.addChild(b2);
+
+                //label.text = "Enter Message:";
+
+                vb.setStyle("paddingBottom", 5);
+                vb.setStyle("paddingLeft", 5);
+                vb.setStyle("paddingRight", 5);
+                vb.setStyle("paddingTop", 5);
+               // vb.addChild(label);
+                vb.addChild(textArea);
+
+                panel = new Panel();
+                panel.title = "Message to Submitter";
+                panel.width = 400;
+                panel.height = 300;
+              	textArea.width = 350;
+              	textArea.height = 180;
+              	textArea.text = 'Hello. Thank you for your submission.'
+              	
+                panel.addChild(vb);
+                panel.addChild(cb);
+                
+                //end popup code
+			
+            }
+            
+            
+            public function handleCreateVenue(event:ResultEvent):void{
+            	oNewVenueObject = event.result as Object;
+            	this.parentApplication.eventEditor.sfartsService.getAllVenues();
+            	if (this.boolUserSubmission == true){
+            		this.boolUserSubmission = false;
+					Alert.show('The Venue has been added. An email has been sent to the submitter. You may now delete the venue and then click cancel.');
+					return;
+            	}else{
+            		this.parentApplication.currentState = 'editEvents';
+            	}
+            	//this.parentApplication.selectNewVenue(oNewVenueObject.ID);
+            }
+            
+            public function deleteUserVenue():void{
+            	this.sfartsService.deleteUserVenue(int(this.dgSubmittedVenues.selectedItem.id));
+            }
+            
+            public function handleDeleteUserVenue(event:ResultEvent):void{
+            	this.sfartsService.getUserVenues();
+            	this.clearForm();
+            }
+            
+            public function handleGetUserVenues(event:ResultEvent):void{
+            	this.submittedVenues = event.result as ArrayCollection;
+            }
+            
+            private function getAllVenues(event:ResultEvent):void{
+				this.collVenues= event.result as ArrayCollection;
+			}
+            private function clearForm():void{
+            			this.venue_address.text = '';
+						this.venue_city.text = '';
+						this.venueName.text= '';
+						
+						this.phoneText.text = '';
+						this.venue_web.text =  '';
+						this.btnSave.visible = false;
+						this.cboNeighborhood.selectedIndex = 0;
+            }
+            
+            public function popUserVenue():void{
+            			this.boolUserSubmission = true;
+            			this.venue_address.text = this.dgSubmittedVenues.selectedItem.newVenueAddress;
+						this.venue_city.text = this.dgSubmittedVenues.selectedItem.newVenueCity;
+						this.venueName.text= this.dgSubmittedVenues.selectedItem.newVenueName;
+						this.venue_zip.text = this.dgSubmittedVenues.selectedItem.newVenueZip;
+						this.phoneText.text = this.dgSubmittedVenues.selectedItem.newVenuePhone;
+						this.venue_web.text =  this.dgSubmittedVenues.selectedItem.newVenueWeb;
+						this.btnSave.visible = true;
+						this.mapIt();
+
+            }
+            
+             public function createTheVenue():void{
+             	
+ 					if (this.venue_zip.text == ""){
+ 						this.venue_zip.text = String(0);
+ 					}	            	
+             		this.sfartsService.createVenue(
+             			this.venue_address.text,
+						this.venue_city.text,
+						this.venueName.text,
+						this.cboNeighborhood.selectedItem.data,
+						this.phoneText.text,
+						this.venue_web.text,
+						this.venue_zip.text
+      				);
+      				if (this.boolUserSubmission == true){
+      					this.sfartsService.notifySubmitter(
+      						this.dgSubmittedVenues.selectedItem.submitterEmail,
+      						this.dgSubmittedVenues.selectedItem.newVenueName,
+      						'New Venue'
+      					)
+      					
+      				}
+      			}
+      			
+      			private function showButton():void{
+      				this.btnSave.visible = true;
+      				
+      			}
+      			
+      			public function mapIt():void{
+      				if ((this.venue_address.text != '') && (this.venue_city.text != '')){ 
+      					initMap();
+      				}
+      			}
+            
+            public function initMap():void{
+				
+                var appid:String =  'bkEJMsjV34Grj6ePcxJjG4TRRjoG_qtE5xI7N0PWFOfDCGf2keo5WdAZA6.Aq.lPTQ--'
+                
+                // create a new YahooMap object.
+                _yahooMap = new YahooMap(); 
+                
+                // list for the MAP_INITIALIZE event from YahooMap
+                _yahooMap.addEventListener(YahooMapEvent.MAP_INITIALIZE, handleMapInitialize);
+                
+                // initialize the map, passing the app-id, width and height.
+                _yahooMap.init(appid,mapContainer.width,mapContainer.height);
+                 
+                mapContainer.addChild(_yahooMap); 
+                mapContainer.addEventListener(ResizeEvent.RESIZE, handleContainerResize); 
+                 
+                _yahooMap.addPanControl(); 
+                _yahooMap.addZoomWidget(); 
+                //_yahooMap.addTypeWidget();  
+                
+              
+                
+			}
+			
+			 private function handleMapInitialize(event:YahooMapEvent):void  
+            { 
+                // creating a new address object, passing our address string as the single parameter. 
+               addressString = this.venue_address.text + '  ' + this.venue_city.text + ', CA';
+               
+               trace(addressString);
+                _address = new Address(addressString); 
+                 
+                // listen for the GEOCODER_SUCCESS event dispatched when the data comes back from the webservice.
+                _address.addEventListener(GeocoderEvent.GEOCODER_SUCCESS, handleGeocodeSuccess);
+                
+                // send the geocode request.
+                _address.geocode(); 
+                
+                  var marker:Marker = new SimpleMarker();
+                marker.address = _address;
+                 _yahooMap.markerManager.removeAllMarkers();
+                  try
+                {
+                _yahooMap.markerManager.addMarker(marker); 
+                }
+                catch(error:Error)
+                {
+                	return;
+                }
+         
+            } 
+             
+            public function handleNewAddress():void{
+            	 // creating a new address object, passing our address string as the single parameter. 
+           
+               
+               _address = new Address(addressString); 
+                 
+                // listen for the GEOCODER_SUCCESS event dispatched when the data comes back from the webservice.
+                _address.addEventListener(GeocoderEvent.GEOCODER_SUCCESS, handleGeocodeSuccess);
+                
+                // send the geocode request.
+                _address.geocode(); 
+                var marker:Marker = new SimpleMarker();
+                marker.address = _address;
+                 _yahooMap.markerManager.removeAllMarkers();
+                  try
+                {
+                _yahooMap.markerManager.addMarker(marker); 
+                }
+                catch(error:Error)
+                {
+                	return;
+                }
+            } 
+             
+            private function handleGeocodeSuccess(event:GeocoderEvent):void  
+            { 
+                // retrieve the first result returned by the geocoder. 
+                var result:GeocoderResult = _address.geocoderResultSet.firstResult; 
+                
+                // then we'll get the zoom level and center latlon to position the map on. 
+                _yahooMap.zoomLevel = result.zoomLevel; 
+                _yahooMap.centerLatLon = result.latlon; 
+               
+                // Now we have 
+                
+            } 
+             
+            private function handleContainerResize(event:ResizeEvent):void {
+                // set the size of the map based on its containers size.
+                _yahooMap.setSize(mapContainer.width,mapContainer.height); 
+            }
+            
+            
+             private function closePopUp(evt:MouseEvent):void {
+             	if (this.cboFrom2.selectedItem == null){
+             		Alert.show('Select a Sender');
+             		PopUpManager.removePopUp(panel);
+             		return;
+             	}
+			 	this.sfartsService.messageToSubmitter(
+			 	this.dgSubmittedVenues.selectedItem.submitterEmail,
+			 	this.textArea.text,
+			 	this.dgSubmittedVenues.selectedItem.newVenueName,
+			 	'new venue',
+			 	this.cboFrom2.selectedItem.data
+			 	);
+                PopUpManager.removePopUp(panel);
+            }
+
+            private function createPopUp(evt:MouseEvent):void {
+                PopUpManager.addPopUp(panel, this, true);
+                PopUpManager.centerPopUp(panel);
+            }
+	]]>
+</mx:Script>
+	<mx:Button x="399" y="362" label="Send Message to Submitter" width="211" click="createPopUp(event);"/>
+	
+	
+	<mx:Button x="121" y="323" label="Create Venue" height="42" id="btnSave" visible="false" width="127" click="this.createTheVenue();"/>
+	<mx:Text x="10" y="45" text="Venue Name" id="text2"/>
+	<mx:Text x="10" y="84" text="Venue Address" id="text3"/>
+	<mx:Text x="10" y="200" text="WebSite:&#x9;" id="text6"/>
+	<mx:Text x="10" y="230" text="Venue Phone:" id="text0"/>
+	<mx:TextInput x="121" y="43" width="389" id="venueName" change="showButton();"/>
+	<mx:TextInput x="121" y="198" width="389" id="venue_web" change="showButton();"/>
+	<mx:TextInput x="121" y="82" width="389" id="venue_address" change="showButton();"/>
+	<mx:Text x="10" y="128" text="City" id="text4"/>
+	<mx:Text x="61" y="279" text="Zip" id="text7"/>
+	<mx:TextInput x="121" y="126" width="193" id="venue_city" text="San Francisco"  focusOut="mapIt();" change="showButton();"/>
+	<mx:TextInput x="121" y="277" width="143" id="venue_zip" change="showButton()"/>
+	<mx:Text x="10" y="158" text="Neighborhood" id="text5"/>
+	<ns2:comboBox2 x="120.5" y="156" width="389" id="cboNeighborhood" change="showButton();">
+	   <mx:ArrayCollection>
+	   <mx:Object label="No Data" data="0"/>
+	   	 <mx:Object label="Castro/Upper Market" data="1"/>
+	   	 <mx:Object label="Chinatown" data="2"/>
+	   	 <mx:Object label="Civic Center" data="3"/>
+	   	 <mx:Object label="Embarcadero/Financial District" data="4"/>
+	   	 <mx:Object label="Fisherman's Wharf" data="5"/>
+	   	 <mx:Object label="Haight-Ashbury" data="6"/>
+	   	 <mx:Object label="Golden Gate Park/Sunset" data="7"/>
+	   	 <mx:Object label="Bayview/Candlestick Point" data="8"/>
+	   	 <mx:Object label="Japantown/Fillmore" data="9"/>
+	   	  <mx:Object label="Marina/Presidio" data="10"/>
+	   	   <mx:Object label="Mission District" data="11"/>
+	   	    <mx:Object label="Nob Hill" data="12"/>
+	   	     <mx:Object label="North Beach" data="13"/>
+	   	      <mx:Object label="SOMA/Yerba Buena" data="14"/>
+	   	      <mx:Object label="Union Square" data="15"/>
+	   </mx:ArrayCollection>
+	
+	
+	
+	</ns2:comboBox2>
+	<mx:RemoteObject
+      id="sfartsService"
+      destination="ColdFusion"
+      source="sfarts.jftemp.sfAIR"   
+      showBusyCursor="true" 
+      endpoint = "http://www.sfarts.org/flex2gateway/">
+ 
+      <mx:method  name="createVenue"  result="handleCreateVenue(event)" fault="Alert.show(event.fault.message)"/>
+       <mx:method  name="getUserVenues"  result="handleGetUserVenues(event)" fault="Alert.show(event.fault.message)"/>
+       <mx:method  name="deleteUserVenue"  result="handleDeleteUserVenue(event)" fault="Alert.show(event.fault.message)"/>
+       <mx:method  name="getAllVenues"  result="getAllVenues(event)" fault="Alert.show(event.fault.message)"/>
+       <mx:method  name="notifySubmitter"   fault="Alert.show(event.fault.message)"/>
+        <mx:method  name="messageToSubmitter"   fault="Alert.show(event.fault.message)"/>
+      </mx:RemoteObject>
+	<mx:TextInput x="121" y="228" id="phoneText"/>
+	<mx:Panel x="30" y="418" width="570" height="306" layout="absolute" id="panel1">
+	<mx:UIComponent id="mapContainer" width="100%" height="100%"/>
+	</mx:Panel>
+	<mx:Button x="14" y="362" label="Cancel" click="this.parentApplication.currentState = 'editEvents'"/>
+	<mx:DataGrid x="289" y="230" width="321" id="dgSubmittedVenues" dataProvider="{submittedVenues}" click="popUserVenue()" height="128">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Submitted Venues" dataField="newVenueName"/>
+			
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Button x="223" y="373" label="Delete Selected Submission" id="btnDeleteVenue" click="deleteUserVenue();" width="130" height="37"/>
+	<ns1:SmartCombo x="121" y="10" id="cboVenue" dataProvider="{this.collVenues}" prompt="Does Venue Already Exist?" caseSensitiveSearching="false"/>
+	<mx:ComboBox x="421" y="391" id="cboFrom2" prompt="Sender">
+	<mx:ArrayCollection>
+	        <mx:Object label="Margo" data="sfamevents@gmail.com"/>
+	        <mx:Object label="Larry" data="lrlarson@mac.com"/>
+	        <mx:Object label="Betsy" data="sfam@sbcglobal.net"/>
+	</mx:ArrayCollection>
+	
+	
+	</mx:ComboBox>
+</mx:Canvas>

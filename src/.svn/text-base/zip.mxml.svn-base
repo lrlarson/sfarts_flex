@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" layout="absolute" creationComplete="init()">
+   <mx:Script>
+   	<![CDATA[
+   		private var Street:String = '1 Liberty Plaza';
+   		private var state:String = 'NY';
+   		private var city:String = 'New York';
+   		[Bindable]
+   		private var requestString:String = "http://where.yahooapis.com/geocode?location="+Street+"%20"+city+","+state+"&appid=fvag1NjV34EVGFEkBnQobhzDJEqucKQgmdaroRuSfoHwZE0ht5mypu3EbE8raKe2_g--";
+   		
+   		private function init():void{
+   			
+   			requestString = this.requestString;
+   			userRequest.send();
+   			
+   		
+
+   			
+   		}
+   	]]>
+   </mx:Script>
+   
+    <mx:Form x="22" y="10" width="493">
+<mx:HBox>
+ <mx:Label text="Username"/>
+ <mx:TextInput id="street"/>
+</mx:HBox>
+<mx:HBox>
+ <mx:Label text="Email Address"/>
+ <mx:TextInput id="emailaddress"/>
+</mx:HBox>
+<mx:Button label="Submit" click="userRequest.send()"/>
+ </mx:Form>
+ <mx:DataGrid id="dgUserRequest" x="22" y="128" dataProvider="{userRequest.lastResult.ResultSet.Result}">
+<mx:columns>
+ <mx:DataGridColumn headerText="zip" dataField="postal"/>
+ <mx:DataGridColumn headerText="zip" dataField="uzip"/>
+</mx:columns>
+ </mx:DataGrid>
+ <mx:TextInput x="22" y="292" id="selectedemailaddress" text="{dgUserRequest.selectedItem.emailaddress}"/>
+ <mx:HTTPService id="userRequest" url="{requestString}" useProxy="false" method="POST">
+
+ </mx:HTTPService>
+
+</mx:WindowedApplication>

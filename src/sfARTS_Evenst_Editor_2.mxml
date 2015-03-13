@@ -1,0 +1,641 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"  width="1400" height="1100" xmlns:components="components.*"
+	 creationComplete="initApp();" xmlns:ns1="com.universalmind.controls.*">
+	<mx:Script>
+		<![CDATA[
+			
+			import mx.rpc.events.ResultEvent;
+       		import mx.collections.ArrayCollection;	
+       		import flash.events.*;
+            import mx.events.*;
+            import mx.controls.Alert;
+            import mx.managers.FocusManager;
+            import mx.managers.PopUpManager;
+			import mx.containers.ControlBar;
+            import mx.containers.Panel;
+            import mx.containers.VBox;
+            import mx.controls.Button;
+            import mx.controls.Label;
+            import mx.controls.Spacer;
+            import mx.controls.TextArea;
+            
+            private var panel:Panel;
+            
+           private  var vb:VBox = new VBox();
+          //  private var label:Label = new Label();
+            private var textArea:TextArea = new TextArea();
+            
+            [Bindable]
+          	public var venueID:int;
+          	
+          	[Bindable]
+          	public var coldFusionEndPoint:String = 'http://www.sfarts.org/flex2gateway/';
+			
+			[Bindable]
+			public var acProducingOrgs:ArrayCollection;
+			
+			[Bindable]
+			public var acEventsForOrg:ArrayCollection;
+			
+			[Bindable]
+			public var acAllVenues:ArrayCollection;
+			
+			[Bindable]
+			public var acWebSubmissions:ArrayCollection;
+			
+			public var orgName:String;
+			
+			public var boolUserSubmission:Boolean = false; 
+			
+			public var boolCreatedVenue:Boolean = false;
+			
+			public function initApp():void{
+				this.sfartsService.getAllProducingOrgs();
+				this.sfartsService.getWebSubmissions();
+					//popup code...
+			
+				
+
+                var cb:ControlBar = new ControlBar();
+                var s:Spacer = new Spacer();
+                var b1:Button = new Button();
+                var b2:Button = new Button();
+
+                s.percentWidth = 100;
+
+                b1.label = "OK";
+                b1.addEventListener(MouseEvent.CLICK, closePopUp);
+                b2.label = "Cancel";
+                b2.addEventListener(MouseEvent.CLICK, closePopUp);
+
+                cb.addChild(s);
+                cb.addChild(b1);
+                cb.addChild(b2);
+
+                //label.text = "Enter Message:";
+
+                vb.setStyle("paddingBottom", 5);
+                vb.setStyle("paddingLeft", 5);
+                vb.setStyle("paddingRight", 5);
+                vb.setStyle("paddingTop", 5);
+               // vb.addChild(label);
+                vb.addChild(textArea);
+
+                panel = new Panel();
+                panel.title = "Message to Submitter";
+                panel.width = 400;
+                panel.height = 300;
+              	textArea.width = 350;
+              	textArea.height = 180;
+              	textArea.text = 'Hello. Thank you for your submission.'
+              	
+                panel.addChild(vb);
+                panel.addChild(cb);
+                
+                //end popup code
+			}
+			
+			 private function closePopUp(evt:MouseEvent):void {
+			 	if (this.cboFrom.selectedItem.data == null){
+			 		Alert.show('Select a Sender');
+			 		return;
+			 	}
+			 	this.sfartsService.messageToSubmitter(
+			 	this.dgWebSubmissions.selectedItem.email,
+			 	this.textArea.text,
+			 	this.dgWebSubmissions.selectedItem.event_name,
+			 	'new event',
+			 	this.cboFrom.selectedItem.data
+			 	);
+                PopUpManager.removePopUp(panel);
+            }
+
+            private function createPopUp(evt:MouseEvent):void {
+                PopUpManager.addPopUp(panel, this, true);
+                PopUpManager.centerPopUp(panel);
+            }
+			
+			public function enterNewOrg():void{
+				if (this.createOrgComp){
+					this.createOrgComp.Org_Address.text = '';
+					this.createOrgComp.Org_City.text = '';
+					this.createOrgComp.Org_Name.text = '';
+					this.createOrgComp.Org_Phone.text = '';
+					this.createOrgComp.Org_Web.text = 'http://';
+					this.createOrgComp.Org_Zip.text = '941';
+					this.createOrgComp.orgNum.text = '';
+				}
+				currentState = 'createOrg';
+			}
+			
+			public function getAllProducingOrgs(event:ResultEvent):void{
+				acProducingOrgs = event.result as ArrayCollection;
+				
+			}
+			
+			private function  refreshUserSubs():void{
+				this.sfartsService.getAllProducingOrgs();
+				this.sfartsService.getWebSubmissions();
+			}
+			
+			private function cboComplete():void{
+				//var item:Object;
+				//item = new Object;
+				//item.label = 'Click Arrow and Begin Typing Here to Select...';
+				//acProducingOrgs.addItemAt(item,0);
+				//.comboOrg.selectedIndex = 0;
+			}
+			
+			public function getAllVenues(event:ResultEvent):void{
+				acAllVenues = event.result as ArrayCollection;
+				trace('got new venues');
+			}
+			
+			private function setText(event:Event):void{
+				trace(this.comboOrg.selectedItem.data);
+				this.eventEditor.visible = false;
+				this.sfartsService.getEventsForOrg(this.comboOrg.selectedItem.data);
+				this.txtURL.text = this.comboOrg.selectedItem.Org_Web;
+				this.eventEditor.saveBtn.visible = false;
+				this.eventEditor.saveNewBtn.visible = false;
+				this.createNewEventBtn.visible = true;
+				this.creteNewEventTemplateBtn.visible = false;
+				this.orgNameText.text = this.comboOrg.selectedItem.label;
+				this.orgNameText.visible = true;
+				this.selOrg.visible = true;
+				this.editOrgsBtn.visible = true;
+				this.eventEditor.txtEmail.text = '';
+			}
+			
+			
+			
+			public function getEventsForOrg(event:ResultEvent):void{
+				acEventsForOrg = event.result as ArrayCollection;
+				/*
+				if (acEventsForOrg.length != 0){
+					this.creteNewEventTemplateBtn.visible = true;
+				}else{
+					this.creteNewEventTemplateBtn.visible = false;
+				}
+				*/
+			}
+			
+			private function editCurrentvenue():void{
+				
+				//venueID = this.eventEditor.cboVenue2.selectedItem.data;
+				if(this.venueEdit){
+					this.venueEdit.initComp();
+					this.venueEdit.handleNewAddress();
+					}
+				this.currentState='editVenue';
+				
+			}
+			private function addNewBlankevent():void{
+				this.eventEditor.btnDeleteEvent.visible =  false;
+				this.eventEditor.back.visible = true;
+				this.eventEditor.mode = 'add';
+				this.eventEditor.visible = true;
+				this.eventEditor.calendarDates.visible = false;
+				this.eventEditor.weeklyDates.visible = true;
+				this.eventEditor.cycleEvent.selected = true;
+				this.eventEditor.eventDescription.text = '';
+				this.eventEditor.startDate.text = '';
+				this.eventEditor.endDate.text = '';
+				this.eventEditor.dateString.text = '';
+				this.eventEditor.timeString.text = '';
+				this.eventEditor.eventName.text = '';
+				this.eventEditor.eventPhone.text = '';
+				this.eventEditor.ticketString.text = '';
+				this.eventEditor.cboVenue2.selectedIndex = -1;
+				this.eventEditor.cboDisp0.selectedIndex = -1;
+				this.eventEditor.cboDisp1.selectedIndex = -1;
+				this.eventEditor.eventNum.text = '';
+				this.eventEditor.childDiscount.selected = false;
+				this.eventEditor.seniorDiscount.selected = false;
+				this.eventEditor.studentDiscount.selected = false;
+				this.eventEditor.xd1.selected = false;
+				this.eventEditor.xd2.selected = false;
+				this.eventEditor.xd3.selected = false;
+				this.eventEditor.xd4.selected = false;
+				this.eventEditor.xd5.selected = false;
+				this.eventEditor.xd6.selected = false;
+				this.eventEditor.xd7.selected = false;
+				this.eventEditor.xd8.selected = false;
+				this.eventEditor.xd9.selected = false;
+				this.eventEditor.xd10.selected = false;
+				this.eventEditor.xd11.selected = false;
+				this.eventEditor.xd12.selected = false;
+				this.eventEditor.xd13.selected = false;
+				this.eventEditor.xd14.selected = false;
+				this.eventEditor.xd15.selected = false;
+				this.eventEditor.xd16.selected = false;
+				this.eventEditor.xd17.selected = false;
+				this.eventEditor.xd18.selected = false;
+				this.eventEditor.xd19.selected = false;
+				this.eventEditor.xd20.selected = false;
+				this.eventEditor.xd21.selected = false;
+				this.eventEditor.xd22.selected = false;
+				this.eventEditor.xd23.selected = false;
+				this.eventEditor.xd24.selected = false;
+				this.eventEditor.xd25.selected = false;
+				this.eventEditor.xd26.selected = false;
+				this.eventEditor.xd27.selected = false;
+				this.eventEditor.xd28.selected = false;
+				this.eventEditor.xd29.selected = false;
+				this.eventEditor.xd30.selected = false;
+				this.eventEditor.xd31.selected = false;
+				this.eventEditor.friday.selected = false;
+				this.eventEditor.saturday.selected = false;
+				this.eventEditor.sunday.selected = false;
+				this.eventEditor.monday.selected = false;
+				this.eventEditor.tuesday.selected = false;
+				this.eventEditor.wednesday.selected = false;
+				this.eventEditor.thursday.selected = false;
+				this.eventEditor.ticketURLButton.visible = false;
+				this.eventEditor.ticketSavedLink.text = 'No ticket link has been entered';
+				this.eventEditor.ticketSavedLink.visible = false;
+				this.eventEditor.cboSmartVenue.selectedItem = null;
+				this.eventEditor.labelVENUE_NAME.text = '';
+				//this.eventEditor.selectedVenueID = null;
+			}
+			
+			private function addNewTemplateEvent():void{
+				if (this.eventsForOrg.selectedIndex == -1){
+					Alert.show('You Must Select an Event to Use as a Model First.');
+					return;
+				}
+				this.eventEditor.btnDeleteEvent.visible = false;
+				this.eventEditor.html.location = this.txtURL.text;
+				this.eventEditor.back.visible = true;
+				this.eventEditor.mode = 'add';
+				this.eventEditor.eventDescription.text = '';
+				this.eventEditor.startDate.text = '';
+				this.eventEditor.endDate.text = '';
+				this.eventEditor.dateString.text = '';
+				//this.eventEditor.timeString.text = '';
+				this.eventEditor.eventName.text = '';
+				this.eventEditor.ticketURLButton.visible = false;
+				this.eventEditor.eventNum.text = '';
+				this.eventEditor.ticketSavedLink.text = '';
+				
+				/*
+				this.eventEditor.xd1.selected = false;
+				this.eventEditor.xd2.selected = false;
+				this.eventEditor.xd3.selected = false;
+				this.eventEditor.xd4.selected = false;
+				this.eventEditor.xd5.selected = false;
+				this.eventEditor.xd6.selected = false;
+				this.eventEditor.xd7.selected = false;
+				this.eventEditor.xd8.selected = false;
+				this.eventEditor.xd9.selected = false;
+				this.eventEditor.xd10.selected = false;
+				this.eventEditor.xd11.selected = false;
+				this.eventEditor.xd12.selected = false;
+				this.eventEditor.xd13.selected = false;
+				this.eventEditor.xd14.selected = false;
+				this.eventEditor.xd15.selected = false;
+				this.eventEditor.xd16.selected = false;
+				this.eventEditor.xd17.selected = false;
+				this.eventEditor.xd18.selected = false;
+				this.eventEditor.xd19.selected = false;
+				this.eventEditor.xd20.selected = false;
+				this.eventEditor.xd21.selected = false;
+				this.eventEditor.xd22.selected = false;
+				this.eventEditor.xd23.selected = false;
+				this.eventEditor.xd24.selected = false;
+				this.eventEditor.xd25.selected = false;
+				this.eventEditor.xd26.selected = false;
+				this.eventEditor.xd27.selected = false;
+				this.eventEditor.xd28.selected = false;
+				this.eventEditor.xd29.selected = false;
+				this.eventEditor.xd30.selected = false;
+				this.eventEditor.xd31.selected = false;
+				this.eventEditor.friday.selected = false;
+				this.eventEditor.saturday.selected = false;
+				this.eventEditor.sunday.selected = false;
+				this.eventEditor.monday.selected = false;
+				this.eventEditor.tuesday.selected = false;
+				this.eventEditor.wednesday.selected = false;
+				this.eventEditor.thursday.selected = false;
+				*/
+				
+			}
+			
+			private function handleOrgEditClick():void{
+				if (!this.editOrgs){
+				this.currentState = 'editOrg';
+				}else{
+					this.editOrgs.initComp();
+					this.currentState = 'editOrg';
+				}
+			}
+			
+			private function clickEvents():void{
+				//this.acEventsForOrg.removeAll();
+				if (this.comboOrg.selectedItem.Org_Web == null){
+				this.txtURL.text = 'http://www.sfarts.org/noURL.html';
+				}
+				this.eventEditor.cboSmartVenue.selectedItem = null;
+				this.eventEditor.getEventDetails(int(this.eventsForOrg.selectedItem.Event_Num));
+				this.eventEditor.saveBtn.visible = false;
+				this.eventEditor.saveNewBtn.visible = false;
+				this.editCurrentVenue.visible = true;
+				this.creteNewEventTemplateBtn.visible = true;
+				this.eventEditor.ticketURLButton.visible = true;
+				this.eventEditor.mode = 'edit';
+				this.eventEditor.btnDeleteEvent.visible = true;
+				this.eventEditor.calendarDates.visible = false;
+				this.eventEditor.weeklyDates.visible = true;
+				//this.eventEditor.ticketURL.text = this.txtURL.text;
+				this.eventEditor.html.location = this.txtURL.text;
+				
+			}
+			
+			private function doLabel(item:Date):String {
+                return dateFormatter2.format(item);
+            }
+
+			private function clickSubmissions():void{
+				//set selected org
+				this.boolUserSubmission = true;
+				this.sfartsService.getEventsForOrg(int(this.dgWebSubmissions.selectedItem.org_num));
+				this.orgNameText.text = this.dgWebSubmissions.selectedItem.org_name;
+				this.orgNameText.visible = true;
+				//set up event page
+				this.eventEditor.visible = true;
+				this.eventEditor.btnDeleteEvent.visible = false;
+				this.txtURL.text = this.dgWebSubmissions.selectedItem.Org_Web;
+				this.eventEditor.html.location = this.txtURL.text;
+				this.eventEditor.back.visible = true;
+				this.eventEditor.mode = 'add';
+				this.eventEditor.eventDescription.text = this.dgWebSubmissions.selectedItem.event_description;
+				this.eventEditor.startDate.text = this.doLabel(this.dgWebSubmissions.selectedItem.startDate);
+				this.eventEditor.endDate.text = this.doLabel(this.dgWebSubmissions.selectedItem.endDate);
+				this.eventEditor.dateString.text = this.dgWebSubmissions.selectedItem.dateString;
+				this.eventEditor.timeString.text = this.dgWebSubmissions.selectedItem.timeString;
+				this.eventEditor.eventPhone.text = this.dgWebSubmissions.selectedItem.eventPhone;
+				this.eventEditor.labelVENUE_NAME.text = this.dgWebSubmissions.selectedItem.Venue_Name;
+				this.eventEditor.selectedVenueID = this.dgWebSubmissions.selectedItem.venue_ID;
+				this.eventEditor.studentDiscount.selected = this.dgWebSubmissions.selectedItem.student;
+				this.eventEditor.seniorDiscount.selected = this.dgWebSubmissions.selectedItem.senior;
+				this.eventEditor.childDiscount.selected = this.dgWebSubmissions.selectedItem.child;
+				if (this.dgWebSubmissions.selectedItem.free == true){
+					this.eventEditor.ticketString.text = 'FREE';
+				}else{
+					this.eventEditor.ticketString.text = this.dgWebSubmissions.selectedItem.ticketString;
+				}
+				this.eventEditor.eventName.text = this.dgWebSubmissions.selectedItem.event_name;
+				if (this.dgWebSubmissions.selectedItem.ticketURL.toString != ''){
+					this.eventEditor.ticketURLButton.visible = false;
+					this.eventEditor.ticketURL.text = this.dgWebSubmissions.selectedItem.ticketURL;}
+					else{
+						this.eventEditor.ticketURLButton.visible = false;
+					}
+				this.eventEditor.cboDisp1.selectedValue = this.dgWebSubmissions.selectedItem.disp_num;
+				var noneSelected:String = '11';
+				this.eventEditor.cboDisp0.selectedValue = noneSelected;		
+				this.eventEditor.eventNum.text = '';
+				this.eventEditor.ticketSavedLink.text = this.dgWebSubmissions.selectedItem.ticketURL;
+				this.eventEditor.saveBtn.visible = false;
+				this.eventEditor.saveNewBtn.visible = true;
+				this.eventEditor.calendarDates.visible = false;
+				this.eventEditor.txtEmail.text = this.dgWebSubmissions.selectedItem.email;
+				this.eventEditor.cycleEvent.selected = true;
+				this.eventEditor.nonCycleEvent.selected = false;
+				this.eventEditor.xd1.selected = false;
+				this.eventEditor.xd2.selected = false;
+				this.eventEditor.xd3.selected = false;
+				this.eventEditor.xd4.selected = false;
+				this.eventEditor.xd5.selected = false;
+				this.eventEditor.xd6.selected = false;
+				this.eventEditor.xd7.selected = false;
+				this.eventEditor.xd8.selected = false;
+				this.eventEditor.xd9.selected = false;
+				this.eventEditor.xd10.selected = false;
+				this.eventEditor.xd11.selected = false;
+				this.eventEditor.xd12.selected = false;
+				this.eventEditor.xd13.selected = false;
+				this.eventEditor.xd14.selected = false;
+				this.eventEditor.xd15.selected = false;
+				this.eventEditor.xd16.selected = false;
+				this.eventEditor.xd17.selected = false;
+				this.eventEditor.xd18.selected = false;
+				this.eventEditor.xd19.selected = false;
+				this.eventEditor.xd20.selected = false;
+				this.eventEditor.xd21.selected = false;
+				this.eventEditor.xd22.selected = false;
+				this.eventEditor.xd23.selected = false;
+				this.eventEditor.xd24.selected = false;
+				this.eventEditor.xd25.selected = false;
+				this.eventEditor.xd26.selected = false;
+				this.eventEditor.xd27.selected = false;
+				this.eventEditor.xd28.selected = false;
+				this.eventEditor.xd29.selected = false;
+				this.eventEditor.xd30.selected = false;
+				this.eventEditor.xd31.selected = false;
+				this.eventEditor.friday.selected = false;
+				this.eventEditor.saturday.selected = false;
+				this.eventEditor.sunday.selected = false;
+				this.eventEditor.monday.selected = false;
+				this.eventEditor.tuesday.selected = false;
+				this.eventEditor.wednesday.selected = false;
+				this.eventEditor.thursday.selected = false;
+				
+			}
+			
+			
+			public function goToNewVenueEditor():void{
+				if (boolCreatedVenue == true){
+					
+					this.currentState = 'createVenue';
+					this.createVenueEditor.venue_address.text = '';
+					this.createVenueEditor.venue_city.text = '';
+					this.createVenueEditor.venue_web.text = '';
+					this.createVenueEditor.venue_address.text = '';
+					this.createVenueEditor.venue_zip.text = '';
+					this.createVenueEditor.venueName.text = '';
+					this.createVenueEditor.phoneText.text = '';
+				}else{
+					boolCreatedVenue = true;
+				this.currentState = 'createVenue';	
+				}
+				
+			}
+			
+			public function getWebSubmissions(e:ResultEvent):void{
+				this.acWebSubmissions = e.result as ArrayCollection;
+			}
+			
+			public function deleteSubmission():void{
+				this.sfartsService.deleteUserSubmission(int(this.dgWebSubmissions.selectedItem.id))
+				this.boolUserSubmission = false;
+			}
+			
+			public function handleDeleteUserSubmission(event:ResultEvent):void{
+				this.sfartsService.getWebSubmissions();
+			}
+			
+		]]>
+	</mx:Script>
+	   <mx:DateFormatter id="dateFormatter2" formatString="MM/DD/YYYY"/>
+	  
+
+	<mx:states>
+		<mx:State name="editEvents">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<components:eventEdit x="368" y="1" id="eventEditor" height="1017">
+				</components:eventEdit>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<ns1:SmartCombo id="comboOrg" x="19" y="72" width="341" dataProvider="{acProducingOrgs}"  caseSensitiveSearching="false" change="setText(event);" creationComplete="cboComplete();" prompt="Click Arrow and Begin Typing Here to Select..."/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="1" y="216" width="371" height="325"  id="eventsForOrg" dataProvider="{acEventsForOrg}" click="clickEvents();" >
+					<mx:columns>
+						<mx:DataGridColumn headerText="Event Name"  width="300"  dataField="Event_Name" >
+						<mx:itemRenderer>
+							
+						
+						<mx:Component>
+							<mx:HBox>
+								<mx:Script>
+									<![CDATA[
+										override public function set data( value:Object ) : void {
+											super.data = value;
+											var today:Date = new Date();
+											var pubDate:Date = new Date(data.timeSeriesEnd);
+											
+											if( pubDate > today ) setStyle("backgroundColor",0xc9ecf4);
+											else setStyle("backgroundColor",0xffffff);
+										}
+									]]>
+								</mx:Script>
+								<mx:Text text="{data.Event_Name}" />
+							</mx:HBox>
+							
+						</mx:Component>
+						</mx:itemRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText=" End Date"   width="65"  dataField="End_Date" />
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="10" y="992" fontSize="14" fontFamily="Verdana" id="txtURL"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{button2}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="19" y="146" label="Create New Blank Event for the Org." width="270" id="createNewEventBtn" visible="false" click="addNewBlankevent();"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="19" y="191" label="Create New Event Based on Selected Event" width="270" id="creteNewEventTemplateBtn" visible="false" click="addNewTemplateEvent();"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="368" y="24" label="Edit Current Venue" id="editCurrentVenue" click="editCurrentvenue()"  visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="525" y="24" label="Create New Venue" id="createNewVenue" width="154" click="goToNewVenueEditor();" />
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="218" y="24" label="Edit Selected Org." click="handleOrgEditClick()" id="editOrgsBtn" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="98" y="111" text="Label" id="orgNameText" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="19" y="111" text="Selected Org:" id="selOrg" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="19" y="24" label="Create New Prod. Org" id="createOrg" click="enterNewOrg();"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="19" y="1" width="106" text="Version 9/19/12"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="0" y="566" width="372" height="280" id="dgWebSubmissions" dataProvider="{acWebSubmissions}" click="clickSubmissions();">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Org" dataField="Org_Name"/>
+						<mx:DataGridColumn headerText="Event" dataField="event_name"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="10" y="549" text="Unprocessed Web Submissions"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="100" y="926" label="Finished with Submission" id="btnFinished" click="deleteSubmission();"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="10" y="962" label="Refresh Submissions -click if app has been loaded a while" width="350" click="refreshUserSubs()"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="81" y="858" label="Send Message to Submitter" width="211" click="createPopUp(event);"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:ComboBox x="107" y="886" id="cboFrom" prompt="Sender">
+				<mx:ArrayCollection>
+			         <mx:Object label="Margo" data="sfamevents@gmail.com"/>
+			         <mx:Object label="Larry" data="lrlarson@mac.com"/>
+			         <mx:Object label="Betsy" data="sfam@sbcglobal.net"/>
+      </mx:ArrayCollection>
+
+				
+				</mx:ComboBox>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="editVenue">
+			<mx:RemoveChild target="{button2}"/>
+			<mx:SetProperty target="{button1}" name="x" value="1155"/>
+			<mx:SetProperty target="{button1}" name="y" value="37"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<components:venueEditor x="247" y="37" height="851" id="venueEdit"  venueIDint='{this.venueID}'   >
+				</components:venueEditor>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="createVenue">
+			<mx:RemoveChild target="{button2}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<components:createVenue x="390" y="214" id="createVenueEditor">
+				</components:createVenue>
+			</mx:AddChild>
+			<mx:RemoveChild target="{button1}"/>
+		</mx:State>
+		<mx:State name="editOrg">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{button2}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<components:editOrg x="246" y="219" id="editOrgs">
+				</components:editOrg>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="createOrg">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{button2}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<components:createOrg x="246" y="219" id="createOrgComp" collOrgs="{this.acProducingOrgs}">
+				</components:createOrg>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	<mx:Canvas x="10" y="10" width="1328" height="1028" backgroundColor="#FFFFFF" id="canvas1">
+		<mx:Button x="619" y="282" label="Edit or Add Events" id="button1" click="currentState = 'editEvents'; " useHandCursor="true" buttonMode="true" mouseChildren="false"/>
+		<mx:Button x="619" y="344" label="Sync Venue IDs" id="button2" click="this.sfartsService.addVenueIDs();" width="131"/>
+	</mx:Canvas>
+	<mx:RemoteObject
+      id="sfartsService"
+      destination="ColdFusion"
+      source="sfarts.jftemp.sfAIR"   
+      showBusyCursor="true" 
+      endpoint = "http://www.sfarts.org/flex2gateway/">
+      
+      <mx:method  name="getAllProducingOrgs"  result="getAllProducingOrgs(event)" fault="Alert.show(event.fault.message)"/>
+      <mx:method  name="getEventsForOrg"  result="getEventsForOrg(event)" fault="Alert.show(event.fault.message)"/>
+      <mx:method  name="getAllVenues"  result="getAllVenues(event)" fault="Alert.show(event.fault.message)"/>
+      <mx:method  name="getWebSubmissions"  result="getWebSubmissions(event)" fault="Alert.show(event.fault.message)"/>
+      <mx:method  name="deleteUserSubmission"  result="handleDeleteUserSubmission(event)" fault="Alert.show(event.fault.message)"/>
+       <mx:method  name="addVenueIDs"   fault="Alert.show(event.fault.message)"/>
+        <mx:method  name="messageToSubmitter"   fault="Alert.show(event.fault.message)"/>
+      </mx:RemoteObject>
+    
+</mx:WindowedApplication>

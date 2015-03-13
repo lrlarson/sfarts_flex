@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<actionScriptProperties analytics="false" mainApplicationPath="sfARTS_Evenst_Editor_2.mxml" projectUUID="948e0133-4b31-4feb-b5ce-5df688b2d645" version="10">
+  <compiler additionalCompilerArguments="-services &quot;/Applications/ColdFusion9/wwwroot/WEB-INF/flex/services-config.xml&quot; -locale en_US" autoRSLOrdering="true" copyDependentFiles="true" flex3CompatMode="true" flexSDK="Flex 4.6.0" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="false" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="true" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
+    <compilerSourcePath/>
+    <libraryPath defaultLinkType="1">
+      <libraryPathEntry kind="4" path=""/>
+      <libraryPathEntry kind="1" linkType="1" path="libs"/>
+      <libraryPathEntry kind="3" linkType="1" path="libs/fds.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="libs/YahooMap.swc" useDefaultLinkType="false"/>
+    </libraryPath>
+    <sourceAttachmentPath/>
+  </compiler>
+  <applications>
+    <application path="sfartsAir_AWS.mxml">
+      <airExcludes/>
+    </application>
+    <application path="contentEditor_2.mxml">
+      <airExcludes/>
+    </application>
+    <application path="sfARTS_Evenst_Editor_2.mxml">
+      <airExcludes/>
+    </application>
+    <application path="sfARTS_Evenst_Editor.mxml">
+      <airExcludes/>
+    </application>
+    <application path="editorExample.mxml">
+      <airExcludes/>
+    </application>
+    <application path="test4.mxml">
+      <airExcludes/>
+    </application>
+    <application path="contentEditor.mxml">
+      <airExcludes/>
+    </application>
+    <application path="sfartsAir.mxml">
+      <airExcludes/>
+    </application>
+    <application path="sfartsAir_localSearch.mxml">
+      <airExcludes/>
+    </application>
+    <application path="events_editor_3.mxml">
+      <airExcludes/>
+    </application>
+  </applications>
+  <modules/>
+  <buildCSSFiles/>
+  <flashCatalyst validateFlashCatalystCompatibility="false"/>
+  <buildTargets>
+    <buildTarget buildTargetName="default">
+      <airSettings airCertificatePath="/Users/lrlarson/Desktop/LarsonCertForAir.p12" airTimestamp="true" anePathSet="true" version="1">
+        <airExcludes/>
+        <anePaths/>
+      </airSettings>
+      <actionScriptSettings version="1"/>
+    </buildTarget>
+  </buildTargets>
+</actionScriptProperties>

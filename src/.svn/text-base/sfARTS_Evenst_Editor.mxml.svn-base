@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"  width="1400" height="1100" xmlns:components="components.*"
+	 creationComplete="initApp();" xmlns:ns1="com.universalmind.controls.*">
+	<mx:Script>
+		<![CDATA[
+			
+			import mx.rpc.events.ResultEvent;
+       		import mx.collections.ArrayCollection;	
+       		import flash.events.*;
+            import mx.events.*;
+            import mx.controls.Alert;
+            import mx.managers.FocusManager;
+            
+            [Bindable]
+          	public var venueID:int;
+          	
+          	[Bindable]
+          	public var coldFusionEndPoint:String = 'http://www.sfarts.org/flex2gateway/';
+			
+			[Bindable]
+			public var acProducingOrgs:ArrayCollection;
+			
+			[Bindable]
+			public var acEventsForOrg:ArrayCollection;
+			
+			[Bindable]
+			public var acAllVenues:ArrayCollection;
+			
+			public var orgName:String;
+			
+			public function initApp():void{
+				this.sfartsService.getAllProducingOrgs();
+				
+			}
+			
+			
+			
+			public function getAllProducingOrgs(event:ResultEvent):void{
+				acProducingOrgs = event.result as ArrayCollection;
+				
+			}
+			
+			private function cboComplete():void{
+				var item:Object;
+				item = new Object;
+				item.label = 'Click Arrow and Begin Typing Here to Select...';
+				acProducingOrgs.addItemAt(item,0);
+				this.comboOrg.selectedIndex = 0;
+			}
+			
+			public function getAllVenues(event:ResultEvent):void{
+				acAllVenues = event.result as ArrayCollection;
+				trace('got new venues');
+			}
+			
+			private function setText(event:Event):void{
+				trace(this.comboOrg.selectedItem.data);
+				this.eventEditor.visible = false;
+				this.sfartsService.getEventsForOrg(this.comboOrg.selectedItem.data);
+				this.txtURL.text = this.comboOrg.selectedItem.Org_Web;
+				this.eventEditor.saveBtn.visible = false;
+				this.eventEditor.saveNewBtn.visible = false;
+				this.createNewEventBtn.visible = true;
+				this.creteNewEventTemplateBtn.visible = false;
+				this.orgNameText.text = this.comboOrg.selectedItem.label;
+				this.orgNameText.visible = true;
+				this.selOrg.visible = true;
+				this.editOrgsBtn.visible = true;
+			}
+			
+			
+			
+			public function getEventsForOrg(event:ResultEvent):void{
+				acEventsForOrg = event.result as ArrayCollection;
+				/*
+				if (acEventsForOrg.length != 0){
+					this.creteNewEventTemplateBtn.visible = true;
+				}else{
+					this.creteNewEventTemplateBtn.visible = false;
+				}
+				*/
+			}
+			
+			private function editCurrentvenue():void{
+				venueID = this.eventEditor.cboVenue2.selectedItem.data;
+				if(this.venueEdit){
+					this.venueEdit.initComp();
+					this.venueEdit.handleNewAddress();
+					}
+				this.currentState='editVenue';
+				
+			}
+			private function addNewBlankevent():void{
+				this.eventEditor.back.visible = true;
+				this.eventEditor.mode = 'add';
+				this.eventEditor.visible = true;
+				this.eventEditor.calendarDates.visible = false;
+				this.eventEditor.weeklyDates.visible = true;
+				this.eventEditor.cycleEvent.selected = true;
+				this.eventEditor.eventDescription.text = '';
+				this.eventEditor.startDate.text = '';
+				this.eventEditor.endDate.text = '';
+				this.eventEditor.dateString.text = '';
+				this.eventEditor.timeString.text = '';
+				this.eventEditor.eventName.text = '';
+				this.eventEditor.eventPhone.text = '';
+				this.eventEditor.ticketString.text = '';
+				this.eventEditor.cboVenue2.selectedIndex = -1;
+				this.eventEditor.cboDisp0.selectedIndex = -1;
+				this.eventEditor.cboDisp1.selectedIndex = -1;
+				this.eventEditor.eventNum.text = '';
+				this.eventEditor.childDiscount.selected = false;
+				this.eventEditor.seniorDiscount.selected = false;
+				this.eventEditor.studentDiscount.selected = false;
+				this.eventEditor.xd1.selected = false;
+				this.eventEditor.xd2.selected = false;
+				this.eventEditor.xd3.selected = false;
+				this.eventEditor.xd4.selected = false;
+				this.eventEditor.xd5.selected = false;
+				this.eventEditor.xd6.selected = false;
+				this.eventEditor.xd7.selected = false;
+				this.eventEditor.xd8.selected = false;
+				this.eventEditor.xd9.selected = false;
+				this.eventEditor.xd10.selected = false;
+				this.eventEditor.xd11.selected = false;
+				this.eventEditor.xd12.selected = false;
+				this.eventEditor.xd13.selected = false;
+				this.eventEditor.xd14.selected = false;
+				this.eventEditor.xd15.selected = false;
+				this.eventEditor.xd16.selected = false;
+				this.eventEditor.xd17.selected = false;
+				this.eventEditor.xd18.selected = false;
+				this.eventEditor.xd19.selected = false;
+				this.eventEditor.xd20.selected = false;
+				this.eventEditor.xd21.selected = false;
+				this.eventEditor.xd22.selected = false;
+				this.eventEditor.xd23.selected = false;
+				this.eventEditor.xd24.selected = false;
+				this.eventEditor.xd25.selected = false;
+				this.eventEditor.xd26.selected = false;
+				this.eventEditor.xd27.selected = false;
+				this.eventEditor.xd28.selected = false;
+				this.eventEditor.xd29.selected = false;
+				this.eventEditor.xd30.selected = false;
+				this.eventEditor.xd31.selected = false;
+				this.eventEditor.friday.selected = false;
+				this.eventEditor.saturday.selected = false;
+				this.eventEditor.sunday.selected = false;
+				this.eventEditor.monday.selected = false;
+				this.eventEditor.tuesday.selected = false;
+				this.eventEditor.wednesday.selected = false;
+				this.eventEditor.thursday.selected = false;
+				this.eventEditor.ticketURLButton.visible = false;
+			}
+			
+			private function addNewTemplateEvent():void{
+				if (this.eventsForOrg.selectedIndex == -1){
+					Alert.show('You Must Select an Event to Use as a Model First.');
+					return;
+				}
+				
+				this.eventEditor.html.location = this.txtURL.text;
+				this.eventEditor.back.visible = true;
+				this.eventEditor.mode = 'add';
+				this.eventEditor.eventDescription.text = '';
+				this.eventEditor.startDate.text = '';
+				this.eventEditor.endDate.text = '';
+				this.eventEditor.dateString.text = '';
+				//this.eventEditor.timeString.text = '';
+				this.eventEditor.eventName.text = '';
+				this.eventEditor.ticketURLButton.visible = false;
+				this.eventEditor.eventNum.text = '';
+				/*
+				this.eventEditor.xd1.selected = false;
+				this.eventEditor.xd2.selected = false;
+				this.eventEditor.xd3.selected = false;
+				this.eventEditor.xd4.selected = false;
+				this.eventEditor.xd5.selected = false;
+				this.eventEditor.xd6.selected = false;
+				this.eventEditor.xd7.selected = false;
+				this.eventEditor.xd8.selected = false;
+				this.eventEditor.xd9.selected = false;
+				this.eventEditor.xd10.selected = false;
+				this.eventEditor.xd11.selected = false;
+				this.eventEditor.xd12.selected = false;
+				this.eventEditor.xd13.selected = false;
+				this.eventEditor.xd14.selected = false;
+				this.eventEditor.xd15.selected = false;
+				this.eventEditor.xd16.selected = false;
+				this.eventEditor.xd17.selected = false;
+				this.eventEditor.xd18.selected = false;
+				this.eventEditor.xd19.selected = false;
+				this.eventEditor.xd20.selected = false;
+				this.eventEditor.xd21.selected = false;
+				this.eventEditor.xd22.selected = false;
+				this.eventEditor.xd23.selected = false;
+				this.eventEditor.xd24.selected = false;
+				this.eventEditor.xd25.selected = false;
+				this.eventEditor.xd26.selected = false;
+				this.eventEditor.xd27.selected = false;
+				this.eventEditor.xd28.selected = false;
+				this.eventEditor.xd29.selected = false;
+				this.eventEditor.xd30.selected = false;
+				this.eventEditor.xd31.selected = false;
+				this.eventEditor.friday.selected = false;
+				this.eventEditor.saturday.selected = false;
+				this.eventEditor.sunday.selected = false;
+				this.eventEditor.monday.selected = false;
+				this.eventEditor.tuesday.selected = false;
+				this.eventEditor.wednesday.selected = false;
+				this.eventEditor.thursday.selected = false;
+				*/
+				
+			}
+			
+			private function handleOrgEditClick():void{
+				if (!this.editOrgs){
+				this.currentState = 'editOrg';
+				}else{
+					this.editOrgs.initComp();
+					this.currentState = 'editOrg';
+				}
+			}
+			
+			private function clickEvents():void{
+				//this.acEventsForOrg.removeAll();
+				if (this.comboOrg.selectedItem.Org_Web == null){
+				this.txtURL.text = 'http://www.sfarts.org/noURL.html';
+				}
+				this.eventEditor.getEventDetails(int(this.eventsForOrg.selectedItem.Event_Num));
+				this.eventEditor.saveBtn.visible = false;
+				this.eventEditor.saveNewBtn.visible = false;
+				this.editCurrentVenue.visible = true;
+				this.creteNewEventTemplateBtn.visible = true;
+				this.eventEditor.ticketURLButton.visible = true;
+				this.eventEditor.mode = 'edit';
+			}
+			
+			
+			
+			
+		]]>
+	</mx:Script>
+	<mx:states>
+		<mx:State name="editEvents">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<components:eventEdit x="368" y="1" id="eventEditor" height="1017">
+				</components:eventEdit>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<ns1:SmartCombo id="comboOrg" x="19" y="72" width="341" dataProvider="{acProducingOrgs}"  caseSensitiveSearching="false" change="setText(event);" creationComplete="cboComplete();"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:DataGrid x="1" y="235" width="371" height="712"  id="eventsForOrg" dataProvider="{acEventsForOrg}" click="clickEvents();" >
+					<mx:columns>
+						<mx:DataGridColumn headerText="Event Name"  width="250"  dataField="Event_Name"    />
+						<mx:DataGridColumn headerText=" End Date"   width="75"  dataField="End_Date" />
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Text x="10" y="992" fontSize="14" fontFamily="Verdana" id="txtURL"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{button2}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="19" y="146" label="Create New Blank Event for the Org." width="270" id="createNewEventBtn" visible="false" click="addNewBlankevent();"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="19" y="191" label="Create New Event Based on Selected Event" width="270" id="creteNewEventTemplateBtn" visible="false" click="addNewTemplateEvent();"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="368" y="24" label="Edit Current Venue" id="editCurrentVenue" click="editCurrentvenue()"  visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="525" y="24" label="Create New Venue" id="createNewVenue" width="154" click="this.currentState = 'createVenue'"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="218" y="24" label="Edit Selected Org." click="handleOrgEditClick()" id="editOrgsBtn" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="98" y="111" text="Label" id="orgNameText" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="19" y="111" text="Selected Org:" id="selOrg" visible="false"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Button x="19" y="24" label="Create New Prod. Org" id="createOrg" click="currentState = 'createOrg'"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<mx:Label x="19" y="1" text="Version 10/30"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="editVenue">
+			<mx:RemoveChild target="{button2}"/>
+			<mx:SetProperty target="{button1}" name="x" value="1155"/>
+			<mx:SetProperty target="{button1}" name="y" value="37"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<components:venueEditor x="247" y="37" height="851" id="venueEdit"  venueIDint='{this.venueID}'   >
+				</components:venueEditor>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="createVenue">
+			<mx:RemoveChild target="{button2}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<components:createVenue x="390" y="214">
+				</components:createVenue>
+			</mx:AddChild>
+			<mx:RemoveChild target="{button1}"/>
+		</mx:State>
+		<mx:State name="editOrg">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{button2}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<components:editOrg x="246" y="219" id="editOrgs">
+				</components:editOrg>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="createOrg">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{button2}"/>
+			<mx:AddChild relativeTo="{canvas1}" position="lastChild">
+				<components:createOrg x="246" y="219" id="createOrgComp">
+				</components:createOrg>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	<mx:Canvas x="10" y="10" width="1328" height="1028" backgroundColor="#FFFFFF" id="canvas1">
+		<mx:Button x="619" y="282" label="Edit or Add Events" id="button1" click="currentState = 'editEvents'; " useHandCursor="true" buttonMode="true" mouseChildren="false"/>
+		<mx:Button x="619" y="344" label="Sync Venue IDs" id="button2" click="this.sfartsService.addVenueIDs();" width="131"/>
+	</mx:Canvas>
+	<mx:RemoteObject
+      id="sfartsService"
+      destination="ColdFusion"
+       source="sfarts.jftemp.sfAIR"   
+      showBusyCursor="true" 
+      endpoint = "http://www.sfarts.org/flex2gateway/">
+      
+      <mx:method  name="getAllProducingOrgs"  result="getAllProducingOrgs(event)" fault="Alert.show(event.fault.message)"/>
+      <mx:method  name="getEventsForOrg"  result="getEventsForOrg(event)" fault="Alert.show(event.fault.message)"/>
+      <mx:method  name="getAllVenues"  result="getAllVenues(event)" fault="Alert.show(event.fault.message)"/>
+       <mx:method  name="addVenueIDs"   fault="Alert.show(event.fault.message)"/>
+      </mx:RemoteObject>
+</mx:WindowedApplication>

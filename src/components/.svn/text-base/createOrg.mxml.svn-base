@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="674" height="584"  creationComplete="init()"  xmlns:ns2="com.universalmind.controls.*">
+
+<mx:Script>
+	<![CDATA[
+			import mx.rpc.events.ResultEvent;
+       		import mx.collections.ArrayCollection;	
+       		import flash.events.*;
+            import mx.events.*;
+            import mx.controls.Alert;
+            import mx.managers.PopUpManager;
+			import mx.containers.ControlBar;
+            import mx.containers.Panel;
+            import mx.containers.VBox;
+            import mx.controls.Button;
+            import mx.controls.Label;
+            import mx.controls.Spacer;
+            import mx.controls.TextArea;
+			
+			    private var panel:Panel;
+			
+			 private  var vb:VBox = new VBox();
+          //  private var label:Label = new Label();
+            private var textArea:TextArea = new TextArea();
+			
+			private var userSubmission:Boolean = false;
+			
+			[Bindable]
+			private var oOrgDetails:Object;
+			
+			[Bindable]
+			private var acUserOrgs:ArrayCollection;
+			
+			[Bindable]
+			public var collOrgs:ArrayCollection;
+			
+			private function handlegetOrgDetails(event:ResultEvent):void{
+				oOrgDetails = event.result as Object;
+			}
+			
+			private function deleteUserOrg():void{
+				this.sfartsService.deleteUserOrg(int(this.dgUserOrgs.selectedItem.id));
+			}
+			
+			public function initComp():void{
+				this.sfartsService.getOrgDetails(this.parentApplication.comboOrg.selectedItem.data);
+			}
+			
+			private function handleGetUserOrgs(event:ResultEvent):void{
+				this.acUserOrgs = event.result as ArrayCollection;
+			}
+			
+			private function handleDeleteUserOrg(event:ResultEvent):void{
+				this.sfartsService.getUserOrgs();
+				this.clearForm();
+			}
+			
+			
+			private function handleCancel():void{
+			//this.parentApplication.comboOrg.selectedValue = oOrgDetails.ORG_NUM;	
+			this.parentApplication.currentState = 'editEvents'	
+			}
+			
+			private function createOrgData():void{
+				if (this.Org_Web.length == 7){
+					this.Org_Web.text = '';
+				}
+				if (this.Org_Zip.text == "941"){
+					this.Org_Zip.text = '0';
+				}
+					else if (this.Org_Zip.text == ''){
+						this.Org_Zip.text = '0';
+					}
+				
+				this.sfartsService.createOrg(
+				
+				Org_Address.text,
+				Org_City.text,
+				Org_Name.text,
+				Org_Phone.text,
+				int(Org_TBA_ID_REAL.text),
+			    Org_Web.text,
+				Org_Zip.text
+				)
+				this.saveChanges.visible = false;
+				if (this.userSubmission == true){
+					//this.userSubmission = false;
+					this.sfartsService.notifySubmitter(
+						this.dgUserOrgs.selectedItem.submitterEMAIL,
+						this.dgUserOrgs.selectedItem.newORG_NAME,
+						'New Organization'
+					)
+				}
+			}
+			
+			private function selectOrg():void{
+				this.userSubmission = true;
+				this.saveChanges.visible = true;
+				Org_Address.text = this.dgUserOrgs.selectedItem.newORG_ADDRESS;
+				Org_City.text = this.dgUserOrgs.selectedItem.newORG_CITY;
+				Org_Name.text = this.dgUserOrgs.selectedItem.newORG_NAME;
+				Org_Phone.text = this.dgUserOrgs.selectedItem.newORG_PHONE;
+			    Org_Web.text = this.dgUserOrgs.selectedItem.newORG_WEB;
+				Org_Zip.text = this.dgUserOrgs.selectedItem.newORG_ZIP;
+			}
+			
+			private function clearForm():void{
+				this.saveChanges.visible = false;
+				Org_Address.text = "";
+				Org_City.text = "";
+				Org_Name.text = "";
+				Org_Phone.text = "";
+			    Org_Web.text = "";
+				Org_Zip.text = "";
+			}
+			
+			private function init():void{
+				this.sfartsService.getUserOrgs();
+				//popup code...
+			
+				
+
+                var cb:ControlBar = new ControlBar();
+                var s:Spacer = new Spacer();
+                var b1:Button = new Button();
+                var b2:Button = new Button();
+
+                s.percentWidth = 100;
+
+                b1.label = "OK";
+                b1.addEventListener(MouseEvent.CLICK, closePopUp);
+                b2.label = "Cancel";
+                b2.addEventListener(MouseEvent.CLICK, closePopUp);
+
+                cb.addChild(s);
+                cb.addChild(b1);
+                cb.addChild(b2);
+
+                //label.text = "Enter Message:";
+
+                vb.setStyle("paddingBottom", 5);
+                vb.setStyle("paddingLeft", 5);
+                vb.setStyle("paddingRight", 5);
+                vb.setStyle("paddingTop", 5);
+               // vb.addChild(label);
+                vb.addChild(textArea);
+
+                panel = new Panel();
+                panel.title = "Message to Submitter";
+                panel.width = 400;
+                panel.height = 300;
+              	textArea.width = 350;
+              	textArea.height = 180;
+              	textArea.text = 'Hello. Thank you for your submission.'
+              	
+                panel.addChild(vb);
+                panel.addChild(cb);
+                
+                //end popup code
+				}
+				
+		
+			
+			 private function closePopUp(evt:MouseEvent):void {
+			 	this.sfartsService.messageToSubmitter(
+			 	this.dgUserOrgs.selectedItem.submitterEMAIL,
+			 	this.textArea.text,
+			 	this.dgUserOrgs.selectedItem.newORG_NAME,
+			 	'new organization',
+			 	this.cboFrom2.selectedItem.data
+			 	);
+                PopUpManager.removePopUp(panel);
+            }
+
+            private function createPopUp(evt:MouseEvent):void {
+            	if (this.cboFrom2.selectedItem == null){
+            		Alert.show('Select a Sender');
+            		return;
+            	}
+                PopUpManager.addPopUp(panel, this, true);
+                PopUpManager.centerPopUp(panel);
+            }
+			
+			
+			
+			private function handleGetOrg_Num(event:ResultEvent):void{
+				oOrgDetails = event.result as Object;
+				this.orgNum.text = oOrgDetails.ORG_NUM;
+				this.parentApplication.sfartsService.getAllProducingOrgs();
+				if (this.userSubmission == true){
+					this.userSubmission = false;
+					Alert.show('The Organization has been added. An email has been sent to the submitter. You may now delete the organization and then click cancel.');
+					return;
+				}
+				this.parentApplication.currentState = 'editEvents';
+			}
+			
+			private function makeSaveVisible():void{
+				this.saveChanges.visible = true;
+			}
+	]]>
+</mx:Script>
+	<mx:TextInput x="249.75" y="26" width="349" id="Org_Name" change="makeSaveVisible()"/>
+	<mx:Label x="25.75" y="28" text="Organization Name:"/>
+	<mx:Label x="25.75" y="75" text="Organization Address:"/>
+	<mx:Label x="25.75" y="130" text="Organization City:"/>
+	<mx:Label x="25.75" y="183" text="Organization Web:"/>
+	<mx:Label x="25.75" y="236" text="Organization Phone:"/>
+	<mx:Label x="25.75" y="279" text="TBA ID:"/>
+	<mx:Label x="438.25" y="130" text="Zip:"/>
+	<mx:TextInput x="249.25" y="73" width="349.5" id="Org_Address" change="makeSaveVisible()"/>
+	<mx:TextInput x="249.25" y="128" id="Org_City" text="San Francisco" change="makeSaveVisible()"/>
+	<mx:TextInput x="484.75" y="128" width="104" id="Org_Zip" text="941" change="makeSaveVisible()"/>
+	<mx:TextInput x="249.25" y="181" width="349" id="Org_Web"  text="http://" change="makeSaveVisible()"/>
+	<mx:TextInput x="249.25" y="234" width="217" id="Org_Phone" change="makeSaveVisible()"/>
+	<mx:Button x="397.75" y="551" label="Create New Org" width="166" id="saveChanges" click="createOrgData();" visible="false"/>
+	<mx:Button x="25.75" y="536" label="Cancel" click="handleCancel();"/>
+	<mx:TextInput x="249.25" y="277" width="87" id="Org_TBA_ID_REAL"/>
+	<mx:RemoteObject
+      id="sfartsService"
+      destination="ColdFusion"
+      source="sfarts.jftemp.sfAIR"   
+      showBusyCursor="true" 
+      endpoint = "http://www.sfarts.org/flex2gateway/">
+      
+ 
+      <mx:method  name="getOrgDetails"  result="handlegetOrgDetails(event)" fault="Alert.show(event.fault.message)"/>
+      <mx:method  name="createOrg"  result="handleGetOrg_Num(event)" fault="Alert.show(event.fault.message)"/>
+       <mx:method  name="getUserOrgs"  result="handleGetUserOrgs(event)" fault="Alert.show(event.fault.message)"/>
+        <mx:method  name="deleteUserOrg"  result="handleDeleteUserOrg(event)" fault="Alert.show(event.fault.message)"/>
+        <mx:method  name="notifySubmitter"   fault="Alert.show(event.fault.message)"/>
+        <mx:method  name="messageToSubmitter"   fault="Alert.show(event.fault.message)"/>
+      </mx:RemoteObject>	
+	<mx:Label x="613" y="10" id="orgNum" />
+	<mx:DataGrid x="397.75" y="304" width="266.25" id="dgUserOrgs" dataProvider="{this.acUserOrgs}" color="#000708" fontFamily="Verdana" fontSize="10" click="selectOrg()">
+		<mx:columns>
+			<mx:DataGridColumn headerText="User Submitted Org" dataField="newORG_NAME"/>
+
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Button x="397.75" y="462" label="Delete Selected Org" click="deleteUserOrg();"/>
+	<ns2:SmartCombo x="10" y="305" id="cboOrgs" dataProvider="{collOrgs}"  caseSensitiveSearching="false" prompt="Does Org Already Exist?"/>
+	
+	<mx:Button x="397.75" y="491" label="Send Message to Submitter" width="211" click="createPopUp(event);"/>
+	<mx:ComboBox x="397.75" y="521" id="cboFrom2" prompt="Sender">
+	<mx:ArrayCollection>
+	        <mx:Object label="Margo" data="sfamevents@gmail.com"/>
+	        <mx:Object label="Larry" data="lrlarson@mac.com"/>
+	        <mx:Object label="Betsy" data="sfam@sbcglobal.net"/>
+	</mx:ArrayCollection>
+	
+	
+	</mx:ComboBox>
+
+</mx:Canvas>

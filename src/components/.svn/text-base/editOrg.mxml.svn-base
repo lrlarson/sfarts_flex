@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="836" height="668" creationComplete="initComp()">
+<mx:Script>
+	<![CDATA[
+			import mx.rpc.events.ResultEvent;
+       		import mx.collections.ArrayCollection;	
+       		import flash.events.*;
+            import mx.events.*;
+            import mx.controls.Alert;
+			
+			[Bindable]
+			private var oOrgDetails:Object;
+			
+			private function handlegetOrgDetails(event:ResultEvent):void{
+				oOrgDetails = event.result as Object;
+			}
+			
+			public function initComp():void{
+				this.sfartsService.getOrgDetails(this.parentApplication.comboOrg.selectedItem.data);
+			}
+			
+			private function handleCancel():void{
+			//this.parentApplication.comboOrg.selectedValue = oOrgDetails.ORG_NUM;	
+			this.parentApplication.currentState = 'editEvents'	
+			}
+			
+			private function updateOrgData():void{
+				
+				if (this.Org_Zip.text == ''){
+					this.Org_Zip.text = '0';
+				}
+					else if (this.Org_Zip.text == '941'){
+						this.Org_Zip.text = '0';
+					}
+				
+				
+				
+				this.sfartsService.updateOrgRecord(
+				
+				Org_Address.text,
+				Org_City.text,
+				Org_Name.text,
+				this.parentApplication.comboOrg.selectedItem.data,
+				Org_Phone.text,
+				int(Org_TBA_ID_REAL.text),
+				Org_Web.text,
+				int(Org_Zip.text),
+				this.chkDisplayForPrintOverride.selected
+				)
+				this.saveChanges.visible = false;
+				this.parentApplication.sfartsService.getAllProducingOrgs();
+				Alert.show('Please remember to reselect the producing org -- its data needs to be refreshed. If you changed the URL, the correct one will not be seen until you reselect.','Sorry About This');
+				this.parentApplication.currentState = 'editEvents';
+			}
+				
+			private function makeSaveVisible():void{
+				this.saveChanges.visible = true;
+			}
+	]]>
+</mx:Script>
+	<mx:TextInput x="355.5" y="147" width="349" id="Org_Name" text="{oOrgDetails.ORG_NAME}" change="makeSaveVisible()"/>
+	<mx:Label x="131.5" y="149" text="Organization Name:"/>
+	<mx:Label x="131.5" y="196" text="Organization Address:"/>
+	<mx:Label x="131.5" y="251" text="Organization City:"/>
+	<mx:Label x="131.5" y="304" text="Organization Web:"/>
+	<mx:Label x="131.5" y="357" text="Organization Phone:"/>
+	<mx:Label x="131.5" y="400" text="TBA ID:"/>
+	<mx:Label x="553.5" y="249" text="Zip:"/>
+	<mx:TextInput x="355" y="194" width="349.5" id="Org_Address" text="{oOrgDetails.ORG_ADDRESS}" change="makeSaveVisible()"/>
+	<mx:TextInput x="355" y="249" id="Org_City" text="{oOrgDetails.ORG_CITY}" change="makeSaveVisible()"/>
+	<mx:TextInput x="600" y="247" width="104" id="Org_Zip" text="{oOrgDetails.ORG_ZIP}" change="makeSaveVisible()"/>
+	<mx:TextInput x="355" y="302" width="349" id="Org_Web" text="{oOrgDetails.ORG_WEB}" change="makeSaveVisible()"/>
+	<mx:TextInput x="355" y="355" width="217" id="Org_Phone" text="{oOrgDetails.ORG_PHONE}" change="makeSaveVisible()"/>
+	<mx:Button x="349" y="458" label="Save Changes" width="166" id="saveChanges" click="updateOrgData();" visible="false"/>
+	<mx:Button x="82" y="458" label="Cancel" click="handleCancel();"/>
+
+
+<mx:RemoteObject
+      id="sfartsService"
+      destination="ColdFusion"
+      source="sfarts.jftemp.sfAIR"   
+      showBusyCursor="true" 
+      endpoint = "http://www.sfarts.org/flex2gateway/">
+      
+ 
+      <mx:method  name="getOrgDetails"  result="handlegetOrgDetails(event)" fault="Alert.show(event.fault.message)"/>
+      <mx:method  name="updateOrgRecord"   fault="Alert.show(event.fault.message)"/>
+      
+      </mx:RemoteObject>	
+	<mx:TextInput x="355" y="398" width="87" id="Org_TBA_ID_REAL" text="{oOrgDetails.ORG_TBA_ID_REAL}" change="makeSaveVisible()"/>
+	<mx:CheckBox x="519" y="398" label="Display For Print Override" id="chkDisplayForPrintOverride" selected="{oOrgDetails.PRINTEXCEPTION}" change="makeSaveVisible()"/>
+</mx:Canvas>

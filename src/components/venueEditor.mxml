@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="900" height="804" xmlns:ns1="com.universalmind.controls.*" xmlns:ns2="*"  xmlns:ns3="components.*"
+	 creationComplete="initComp();"  activate="getNewVenue();trace('activate');">
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import com.yahoo.maps.api.core.location.LatLon;
+			import com.yahoo.maps.api.markers.Marker;
+			import com.yahoo.maps.api.markers.SimpleMarker;
+			import mx.rpc.events.ResultEvent;
+       		import mx.collections.ArrayCollection;	
+       		import flash.events.*;
+            import mx.events.*;
+            import mx.controls.Alert;
+            import mx.managers.FocusManager;
+            
+            import mx.events.ResizeEvent; 
+            // import maps classes.
+            import com.yahoo.maps.api.YahooMap; 
+            import com.yahoo.maps.api.YahooMapEvent; 
+            import com.yahoo.maps.api.core.location.Address; 
+            import com.yahoo.maps.webservices.geocoder.GeocoderResult; 
+            import com.yahoo.maps.webservices.geocoder.events.GeocoderEvent; 
+    		
+    		private var _yahooMap:YahooMap; 
+            private var _address:Address; 
+            
+         	public var addressString:String;
+            
+            [Bindable]
+			public var oVenueData:Object;
+			
+			[Bindable]
+			public var venueIDint:int;
+			
+			public function getNewVenue():void{
+				this.sfartsService.getAddressDetailsForVenue(venueIDint);
+			}
+			
+			public function getVenueData(event:ResultEvent):void{
+			oVenueData=event.result as Object;
+			addressString = oVenueData.VENUE_ADDRESS + ' ' + oVenueData.VENUE_CITY + ', CA';
+			handleNewAddress();
+			//cboState0.selectedValue = oIndividualData.STATE_ID;
+			}
+			
+			public function initComp():void{
+				
+				trace(this.parentApplication.venueID);
+				this.sfartsService.getAddressDetailsForVenue(this.parentApplication.venueID);
+				
+                var appid:String =  'bkEJMsjV34Grj6ePcxJjG4TRRjoG_qtE5xI7N0PWFOfDCGf2keo5WdAZA6.Aq.lPTQ--'
+                
+                // create a new YahooMap object.
+                _yahooMap = new YahooMap(); 
+                
+                // list for the MAP_INITIALIZE event from YahooMap
+                _yahooMap.addEventListener(YahooMapEvent.MAP_INITIALIZE, handleMapInitialize);
+                
+                // initialize the map, passing the app-id, width and height.
+                _yahooMap.init(appid,mapContainer.width,mapContainer.height);
+                 
+                mapContainer.addChild(_yahooMap); 
+                mapContainer.addEventListener(ResizeEvent.RESIZE, handleContainerResize); 
+                 
+                _yahooMap.addPanControl(); 
+                _yahooMap.addZoomWidget(); 
+                //_yahooMap.addTypeWidget();  
+                
+              
+                makeSaveBtnNotVisible();    
+			}
+			
+			 private function handleMapInitialize(event:YahooMapEvent):void  
+            { 
+                // creating a new address object, passing our address string as the single parameter. 
+                _address = new Address(addressString); 
+                 
+                // listen for the GEOCODER_SUCCESS event dispatched when the data comes back from the webservice.
+                _address.addEventListener(GeocoderEvent.GEOCODER_SUCCESS, handleGeocodeSuccess);
+                
+                // send the geocode request.
+                _address.geocode(); 
+                
+                  var marker:Marker = new SimpleMarker();
+                marker.address = _address;
+                 _yahooMap.markerManager.removeAllMarkers();
+                  try
+                {
+                _yahooMap.markerManager.addMarker(marker); 
+                }
+                catch(error:Error)
+                {
+                	return;
+                }
+         
+            } 
+             
+            public function handleNewAddress():void{
+            	 // creating a new address object, passing our address string as the single parameter. 
+           
+               
+               _address = new Address(addressString); 
+                 
+                // listen for the GEOCODER_SUCCESS event dispatched when the data comes back from the webservice.
+                _address.addEventListener(GeocoderEvent.GEOCODER_SUCCESS, handleGeocodeSuccess);
+                
+                // send the geocode request.
+                _address.geocode(); 
+                var marker:Marker = new SimpleMarker();
+                marker.address = _address;
+                 _yahooMap.markerManager.removeAllMarkers();
+                  try
+                {
+                _yahooMap.markerManager.addMarker(marker); 
+                }
+                catch(error:Error)
+                {
+                	return;
+                }
+            } 
+             
+            private function handleGeocodeSuccess(event:GeocoderEvent):void  
+            { 
+                // retrieve the first result returned by the geocoder. 
+                var result:GeocoderResult = _address.geocoderResultSet.firstResult; 
+                
+                // then we'll get the zoom level and center latlon to position the map on. 
+                _yahooMap.zoomLevel = result.zoomLevel; 
+                _yahooMap.centerLatLon = result.latlon; 
+               
+                // Now we have 
+                
+            } 
+             
+            private function handleContainerResize(event:ResizeEvent):void {
+                // set the size of the map based on its containers size.
+                _yahooMap.setSize(mapContainer.width,mapContainer.height); 
+            }
+            
+            public function updateTheAddress():void{
+      				this.sfartsService.updateVenueData(
+      				this.parentApplication.venueID,
+      				this.venueName.text,
+      				this.venue_address.text,
+      				this.venue_city.text,
+      				int(this.venue_zip.text),
+      				this.cboNeighborhood.selectedItem.data,
+      				this.venue_web.text
+      				)
+      			}
+      			
+      			public function makeSaveBtnVisible():void{
+      				this.btnSave.visible = true;
+      			}
+      			
+      			public function makeSaveBtnNotVisible():void{
+      				this.btnSave.visible = false;
+      			}
+		]]>
+	</mx:Script>
+	<mx:Button x="738" y="269" label="Save Changes" height="61" id="btnSave" width="127" click="updateTheAddress();this.parentApplication.currentState = 'editEvents';"/>
+	<mx:Button x="738" y="188" label="Return - No Save" height="49" id="btnReturn" width="127" click="updateTheAddress();makeSaveBtnNotVisible();this.parentApplication.currentState = 'editEvents';"/>
+	
+	<mx:RemoteObject
+      id="sfartsService"
+      destination="ColdFusion"
+       source="sfarts.jftemp.sfAIR"   
+      showBusyCursor="true" 
+      endpoint = "http://www.sfarts.org/flex2gateway/">
+      
+	  <!-- Define the methods of the CFC within the remote object and assign function to handle  -->     
+
+	
+
+	<mx:method  name="getAddressDetailsForVenue"  result="getVenueData(event)" fault="Alert.show(event.fault.message)"/>
+	<mx:method  name="updateVenueData"  fault="Alert.show(event.fault.message)"/>
+</mx:RemoteObject>	
+ <mx:Text x="165" y="178" text="Venue Name" id="text2"/>
+ <mx:Text x="165" y="217" text="Venue Address" id="text3"/>
+ <mx:Text x="165" y="333" text="WebSite:&#x9;" id="text6"/>
+ <mx:TextInput x="276" y="176" width="389" id="venueName" text="{oVenueData.VENUE_NAME}" change="makeSaveBtnVisible();"/>
+ <mx:TextInput x="276" y="331" width="389" text="{oVenueData.VENUE_WEB}" id="venue_web" change="makeSaveBtnVisible();"/>
+ <mx:TextInput x="276" y="215" width="389" text="{oVenueData.VENUE_ADDRESS}" id="venue_address" change="makeSaveBtnVisible();"/>
+ <mx:Text x="165" y="254" text="City" id="text4"/>
+ <mx:Text x="492" y="254" text="Zip" id="text7"/>
+ <mx:TextInput x="276" y="252" width="193" text="{oVenueData.VENUE_CITY}" id="venue_city" change="makeSaveBtnVisible();"/>
+ <mx:TextInput x="522" y="254" width="143" text="{oVenueData.VENUE_ZIP}" id="venue_zip" change="makeSaveBtnVisible();"/>
+ <mx:Text x="165" y="291" text="Neighborhood" id="text5"/>
+ 
+ <ns2:comboBox2 x="276" y="289" width="389" id="cboNeighborhood" selectedValue="{oVenueData.VENUE_NEIGHBORHOOD}" change="makeSaveBtnVisible();">
+	<mx:ArrayCollection>
+	<mx:Object label="No Data" data="0"/>
+		 <mx:Object label="Castro/Upper Market" data="1"/>
+		 <mx:Object label="Chinatown" data="2"/>
+		 <mx:Object label="Civic Center" data="3"/>
+		 <mx:Object label="Embarcadero/Financial District" data="4"/>
+		 <mx:Object label="Fisherman's Wharf" data="5"/>
+		 <mx:Object label="Haight-Ashbury" data="6"/>
+		 <mx:Object label="Golden Gate Park/Sunset" data="7"/>
+		 <mx:Object label="Bayview/Candlestick Point" data="8"/>
+		 <mx:Object label="Japantown/Fillmore" data="9"/>
+		  <mx:Object label="Marina/Presidio" data="10"/>
+		   <mx:Object label="Mission District" data="11"/>
+		    <mx:Object label="Nob Hill" data="12"/>
+		     <mx:Object label="North Beach" data="13"/>
+		      <mx:Object label="SOMA/Yerba Buena" data="14"/>
+		      <mx:Object label="Union Square" data="15"/>
+	</mx:ArrayCollection>
+ 
+ 
+ 
+</ns2:comboBox2>
+ <mx:Panel x="165" y="361" width="570" height="306" layout="absolute" id="panel1">
+ <mx:UIComponent id="mapContainer" width="100%" height="100%"/>
+ </mx:Panel>
+
+</mx:Canvas>

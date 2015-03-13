@@ -188,7 +188,7 @@
 					this.startDate.text = dateDisplay.format(this.startDate.text);
 				}else{
 					var workstring:String = this.startDate.text;
-					workstring = workstring + '/14';
+					workstring = workstring + '/15';
 					trace(workstring);
 					this.startDate.text = workstring;
 					this.startDate.text = dateDisplay.format(this.startDate.text);

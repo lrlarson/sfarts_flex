@@ -212,7 +212,7 @@
 					this.endDate.text = dateDisplay.format(this.endDate.text);
 				}else{
 					var workstring:String = this.endDate.text;
-					workstring = workstring + '/14';
+					workstring = workstring + '/15';
 					trace(workstring);
 					this.endDate.text = workstring;
 					this.endDate.text = dateDisplay.format(this.endDate.text);
